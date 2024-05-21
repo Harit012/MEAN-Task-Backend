@@ -22,6 +22,14 @@ const countrySchema = new mongoose.Schema({
     type: [String],
     required: true,
   },
+  latlng: {
+    type: [Number],
+    required: true,
+  },
+  countryShortName:{
+    type: String,
+    required: true,
+  }
 });
 
 module.exports = mongoose.model("country", countrySchema);

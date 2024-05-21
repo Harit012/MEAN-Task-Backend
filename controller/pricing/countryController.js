@@ -16,7 +16,8 @@ exports.postCountry = async (req, res) => {
     !req.body.currency ||
     !req.body.countryCallCode ||
     !req.body.FlagUrl ||
-    !req.body.timezones
+    !req.body.timezones ||
+    !req.body.countryShortName
   ) {
     res.send({ error: "Please enter all the fields" });
   } else {
@@ -27,6 +28,8 @@ exports.postCountry = async (req, res) => {
         countryCallCode: req.body.countryCallCode,
         FlagUrl: req.body.FlagUrl,
         timezones: req.body.timezones,
+        latlng: req.body.latlng,
+        countryShortName: req.body.countryShortName,
       });
       await country
         .save()
