@@ -39,21 +39,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/user", loginRouter);
-app.use("/admin", (req, res, next) => {
-  if (req.headers.cookie) {
-    var token = req.headers.cookie;
-    const decoded = varifyToken(token);
-    if (decoded) {
-      next();
-    } else {
-      console.log("not varified");
-      res.send({ varified: false });
-    }
-  } else {
-    console.log("not varified");
-    res.send({ varified: false });
-  }
-});
+app.use("/admin", loginRouter);
 
 app.use("/admin/pricing", upload.single("vehicleImage"), adminPricingRouter);
 

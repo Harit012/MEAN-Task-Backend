@@ -2,6 +2,7 @@ const express = require("express");
 const adminpricing = require("../controller/pricing/vehicleType");
 const country = require("../controller/pricing/countryController");
 const zone = require("../controller/pricing/zoneController");
+const vehiclePricing = require("../controller/pricing/vehiclePricingController");
 const router = express.Router();
 
 // admin/pricing/vehicle-type
@@ -27,5 +28,11 @@ router.get("/city", zone.getZone);
 router.post("/city", zone.postZone);
 
 router.patch("/city", zone.patchzone);
+
+// admin/pricing/vehicle-pricing
+
+router.get("/vehicle-pricing", vehiclePricing.getVehiclePricing);
+
+router.post("/vehicle-pricing", vehiclePricing.postVehiclePricing);
 
 module.exports = router;

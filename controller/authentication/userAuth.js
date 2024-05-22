@@ -23,15 +23,31 @@ exports.postLoginUser = async (req, res) => {
   }
 };
 
-exports.getVarifyUser = (req, res) => {
-  // let cookie = req.headers.cookie;
-  
-  const isUserAuthenticated = jwt.verify(req.headers.cookie);
-
-  if(isUserAuthenticated){
-    res.send({ varified:true });
-  }
-  else{
-    res.send({ varified:false });
+exports.getVerifiedUser = (req, res, next) => {
+  if (req.headers.cookie) {
+    var token = req.headers.cookie;
+    const decoded = varifyToken(token);
+    if (decoded) {
+      next();
+    } else {
+      console.log("not varified");
+      res.send({ varified: false });
+    }
+  } else {
+    console.log("not varified");
+    res.send({ varified: false });
   }
 };
+
+// exports.getVarifyUser = (req, res) => {
+//   // let cookie = req.headers.cookie;
+  
+//   const isUserAuthenticated = jwt.verify(req.headers.cookie);
+
+//   if(isUserAuthenticated){
+//     res.send({ varified:true });
+//   }
+//   else{
+//     res.send({ varified:false });
+//   }
+// };
