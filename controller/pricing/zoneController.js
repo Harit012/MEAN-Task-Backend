@@ -1,9 +1,40 @@
 zoneModel = require("../../models/zone");
+ const { ObjectId } = require("mongodb");
+
+const pipeline =[{
+  $lookup: {
+    from: "countries",
+    localField: "country",
+    foreignField: "_id",
+    as: "country",
+  },
+},
+{
+  $unwind: "$country",
+},
+{
+  $project: {
+    _id: 1,
+    country: {
+      countryName: "$country.countryName",
+      countryShortName: "$country.countryShortName",
+      countryId: "$country._id",
+    },
+    boundry: 1,
+    zoneName: 1,
+  },
+},]
 
 exports.getZone = async (req, res) => {
-  let country = req.query.countryShortName;
+  const country = new ObjectId(req.query.countryId);
+
   try {
-    const zone = await zoneModel.find({ countryShortName: country });
+    const zone = await zoneModel.aggregate([
+      {
+        $match: { country : country },
+      },
+      ...pipeline
+    ]);
     res.send({ zones: zone });
   } catch (err) {
     res.send({ error: err });
@@ -12,30 +43,28 @@ exports.getZone = async (req, res) => {
 
 exports.postZone = async (req, res) => {
   if (
-    !req.body.countryName ||
+    !req.body.country ||
     !req.body.boundry ||
-    !req.body.zoneName ||
-    !req.body.countryShortName
+    !req.body.zoneName
   ) {
     res.send({ error: "Please enter all the fields" });
   } else {
     try {
       const zone = new zoneModel({
-        countryName: req.body.countryName,
         boundry: req.body.boundry,
         zoneName: req.body.zoneName,
-        countryShortName: req.body.countryShortName,
+        country: req.body.country,
       });
+      const country = new ObjectId(req.body.country);
+
       await zone.save();
-      const zones = await zoneModel.find({
-        $or: [
-          { name: req.body.countryName },
-          { countryShortName: req.body.countryShortName },
-        ],
-      });
+      const zones = await zoneModel.aggregate([
+        { $match: { country: country } },
+        ...pipeline
+      ]);
       res.send({ zones: zones });
     } catch (err) {
-      console.log("error Occured at line 43");
+      console.log("error Occured at line 92");
       if (err.errorResponse.code == 11000) {
         res.send({ error: `zone at ${req.body.zoneName} already exists` });
       } else {
@@ -53,8 +82,12 @@ exports.patchzone = async (req, res) => {
         { boundry: req.body.boundry }
       );
       updatedZone.save();
-      let fatchedUpdatedZone = await zoneModel.findOne({ _id: req.body.id });
-      res.send({ zone: fatchedUpdatedZone });
+      const id = new ObjectId(req.body.id);
+      let fatchedUpdatedZone = await zoneModel.aggregate([
+        { $match: { _id: id } },
+        ...pipeline
+      ]);
+      res.send({ zone: fatchedUpdatedZone[0] });
     } else {
       console.log("error in line 65");
       res.send({ error: "Provided Fields are not correct !!" });

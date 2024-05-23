@@ -23,7 +23,7 @@ const countrySchema = new mongoose.Schema({
     required: true,
   },
   latlng: {
-    type: [Number],
+    type: { lat: Number, lng: Number },
     required: true,
   },
   countryShortName:{

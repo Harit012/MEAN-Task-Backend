@@ -1,10 +1,6 @@
 const mongoose = require("mongoose");
 
 const zoneSchema = new mongoose.Schema({
-  countryName: {
-    type: String,
-    required: true,
-  },
   boundry: {
     type: [{ lat: Number, lng: Number }],
     required: true,
@@ -14,10 +10,19 @@ const zoneSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  countryShortName: {
-    type: String,
+  country:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "country",
     required: true,
-  },
+  }
+  // countryName: {
+  //   type: String,
+  //   required: true,
+  // },
+  // countryShortName: {
+  //   type: String,
+  //   required: true,
+  // },
 });
 
 module.exports = mongoose.model("zone", zoneSchema);
