@@ -1,6 +1,5 @@
 const vehiclePricing = require("../../models/vehiclePricing");
-// const countryModel = require("../../models/country");
-// const zoneModel = require("../../models/zone");
+
 
 exports.getVehiclePricing = async (req, res) => {
   let data = await vehiclePricing.aggregate([
@@ -29,12 +28,8 @@ exports.getVehiclePricing = async (req, res) => {
     {
       $project: {
         _id: 1,
-        country: {
-            countryName: 1
-        },
-        city: {
-            zoneName: 1
-        },
+        country: "$country.countryName",
+        city: "$city.zoneName",
         vehicleType: 1,
         driverProfit: 1,
         minFare: 1,
