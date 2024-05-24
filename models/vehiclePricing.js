@@ -43,6 +43,11 @@ const vehiclePricingSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  ccv:{
+    type: String,
+    required: true,
+    unique: true,
+  }
 });
 
 module.exports = mongoose.model("vehiclePricing", vehiclePricingSchema);

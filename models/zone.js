@@ -10,19 +10,21 @@ const zoneSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  country:{
+  country: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "country",
     required: true,
-  }
-  // countryName: {
-  //   type: String,
-  //   required: true,
-  // },
-  // countryShortName: {
-  //   type: String,
-  //   required: true,
-  // },
+  },
+  pricing:{
+    type:[
+        {vtype: String, hasvalue: Boolean ,pricingId:mongoose.Schema.Types.ObjectId},
+        {vtype: String, hasvalue: Boolean ,pricingId:mongoose.Schema.Types.ObjectId},
+        {vtype: String, hasvalue: Boolean ,pricingId:mongoose.Schema.Types.ObjectId},
+        {vtype: String, hasvalue: Boolean ,pricingId:mongoose.Schema.Types.ObjectId},     
+   ],
+   required:false
+  } 
+  
 });
 
 module.exports = mongoose.model("zone", zoneSchema);

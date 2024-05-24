@@ -1,4 +1,7 @@
 const vehiclePricing = require("../../models/vehiclePricing");
+const zoneModel = require("../../models/zone");
+
+const ObjectId = require("mongodb").ObjectId;
 
 const pipeline = [
   {
@@ -39,15 +42,56 @@ const pipeline = [
     },
   },
 ];
-
 exports.getVehiclePricing = async (req, res) => {
-  let data = await vehiclePricing.aggregate(pipeline);
-  res.send(data);
+  try {
+    let data = await vehiclePricing.aggregate([...pipeline]);
+    res.send(data);
+  } catch (err) {
+    console.log(err.message);
+    res.send({ error: err.message });
+  }
 };
 
 exports.postVehiclePricing = async (req, res) => {
   let data = req.body;
-  let vehicle = new vehiclePricing(data);
-  let result = await vehicle.save();
-  res.send(result);
+  try {
+    let vehicle = new vehiclePricing(data);
+    let result = await vehicle.save();
+    let vehicleType = req.body.vehicleType;
+    let tempzone = await zoneModel.findOneAndUpdate(
+      { _id: req.body.city },
+      {
+        $set: {
+          "pricing.$[elem].pricingId": result._id,
+          "pricing.$[elem].hasvalue":true
+        },
+      },
+      { arrayFilters: [{ "elem.vtype": vehicleType }] }
+    );
+    tempzone.save();
+    let id = new ObjectId(result._id);
+    output = await vehiclePricing.aggregate([
+      { $match: { _id: id } },
+      ...pipeline,
+    ]);
+    res.send({ vehiclePricing: output[0] });
+  } catch (err) {
+    console.log(err.message);
+    res.send({ error: err.message });
+  }
+};
+
+exports.patchVehiclePricing = async (req, res) => {
+  try {
+    let id = new ObjectId(req.body._id);
+    await vehiclePricing.findOneAndUpdate({ _id: id }, req.body);
+    let output = await vehiclePricing.aggregate([
+      { $match: { _id: id } },
+      ...pipeline,
+    ]);
+    res.send({ vehiclePricing: output[0] });
+  } catch (err) {
+    console.log(err.message);
+    res.send({ error: err.message });
+  }
 };

@@ -29,10 +29,14 @@ router.post("/city", zone.postZone);
 
 router.patch("/city", zone.patchzone);
 
+router.get("/cityForPricing", zone.getzoneforpricing)
+
 // admin/pricing/vehicle-pricing
 
 router.get("/vehicle-pricing", vehiclePricing.getVehiclePricing);
 
 router.post("/vehicle-pricing", vehiclePricing.postVehiclePricing);
+
+router.patch("/vehicle-pricing", vehiclePricing.patchVehiclePricing);
 
 module.exports = router;
