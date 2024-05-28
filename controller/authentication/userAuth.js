@@ -1,12 +1,14 @@
 const { default: mongoose } = require("mongoose");
-const userModel = require("../../models/user");
+const adminModel = require("../../models/admin");
 const jwt = require("../../controller/jwtOperations");
+
+
 exports.postLoginUser = async (req, res) => {
   let data = req.body;
   if (data.email == "none" || data.password == "none") {
     res.send({ error: "Please enter email and password" });
   } else {
-    const user = await userModel.findOne({
+    const user = await adminModel.findOne({
       email: req.body.email,
       password: req.body.password,
     });

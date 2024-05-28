@@ -9,8 +9,7 @@ var multer = require("multer");
 
 const loginRouter = require("./routes/login");
 const adminPricingRouter = require("./routes/adminPricing");
-const jwt = require("../AngularBackend/controller/jwtOperations");
-const { varifyToken } = require("../AngularBackend/controller/jwtOperations");
+const userRouter = require("./routes/user");
 const { log } = require("console");
 
 var app = express();
@@ -42,6 +41,7 @@ app.use("/user", loginRouter);
 app.use("/admin", loginRouter);
 
 app.use("/admin/pricing", upload.single("vehicleImage"), adminPricingRouter);
+app.use("/admin/users",upload.single("userProfile"), userRouter);
 
 app.use(function (err, req, res, next) {});
 
