@@ -6,7 +6,7 @@ const ObjectId = require("mongodb").ObjectId;
 
 const userPerPage = 10;
 
-const pipeline1 = [
+const pipeline = [
   {
     $lookup: {
       from: "countries",
@@ -19,38 +19,39 @@ const pipeline1 = [
     $unwind: "$country",
   },
   {
-    $lookup: {
-      from: "cards",
-      localField: "cards",
-      foreignField: "_id",
-      as: "cards",
+    $facet: {
+      nonEmptyUsers: [
+        {
+          $match: { cards: { $ne: [] } },
+        },
+        {
+          $lookup: {
+            from: "cards",
+            localField: "cards",
+            foreignField: "_id",
+            as: "cards",
+          },
+        },
+      ],
+      emptyUsers: [
+        {
+          $match: { cards: { $eq: [] } },
+        },
+      ],
     },
   },
-  { $unwind: "$cards" },
   {
     $project: {
-      _id: 1,
-      userName: 1,
-      email: "$userEmail",
-      countryCode: "$country.countryCallCode",
-      phone: 1,
-      userProfile: 1,
-      cards: 1,
-    },
-  },
-];
-
-const pipeline2 = [
-  {
-    $lookup: {
-      from: "countries",
-      localField: "country",
-      foreignField: "_id",
-      as: "country",
+      combined: {
+        $concatArrays: ["$nonEmptyUsers", "$emptyUsers"],
+      },
     },
   },
   {
-    $unwind: "$country",
+    $unwind: "$combined",
+  },
+  {
+    $replaceRoot: { newRoot: "$combined" },
   },
   {
     $project: {
@@ -71,10 +72,9 @@ exports.getUser = async (req, res) => {
     if (req.query.input && req.query.page) {
       let page = req.query.page;
       var input = req.query.input;
-      var numinput = Number(input);
       if (input == "ThereIsNothing") {
         const users = await userModel
-          .aggregate([...pipeline2])
+          .aggregate([...pipeline])
           .skip(page * userPerPage)
           .limit(userPerPage);
         res.send({ users: users });
@@ -90,7 +90,7 @@ exports.getUser = async (req, res) => {
                 ],
               },
             },
-            ...pipeline2,
+            ...pipeline,
           ])
           .skip(page * userPerPage)
           .limit(userPerPage);
