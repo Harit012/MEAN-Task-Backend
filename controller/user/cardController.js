@@ -1,39 +1,39 @@
-const cardModel = require("../../models/card");
-const userModel = require("../../models/user");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
+exports.deletecard = async (req, res) => {
+  const cardId = req.query.cardId;
+  const customerId = req.query.customerId;
+  try {
+    await stripe.customers.deleteSource(customerId, cardId);
+    res.send({ message: "card deleted successfully" });
+  }catch(err){
+    res.send({error:err.message})
+  }
+}
 
 exports.postCard = async (req, res) => {
-    const data = req.body;
-    let cardHolderName = data.cardHolderName;
-    cardHolderName = cardHolderName.toUpperCase();
+  const data = req.body;
+  let custId = data.customerId;
   try {
-    const card = new cardModel({ 
-        cardNumber: data.cardNumber,
-        cardHolderName: cardHolderName,
-        expiryDate: data.expiryDate,
-        cvv: data.cvv
-     });
-    card.save();
-    await userModel.findOneAndUpdate(
-      { _id: req.body.userId },
-      { $push: { cards: card._id } }
-    )
+    const card = await stripe.customers.createSource(custId, {
+      source: data.token.id
+    });
     res.send({ card: card });
   } catch (err) {
     res.send({ error: err.message });
   }
-};
+}
 
-exports.deletecard = async (req, res) => {
-  const cardId = req.query.cardId;
-  const userId = req.query.userId;
+exports.setDefault = async (req, res) => {
+  const data = req.body;
+  let custId = data.customerId;
+  let cardId = data.cardId;
   try {
-    await cardModel.findOneAndDelete({ _id: cardId });
-    await userModel.findOneAndUpdate(
-      { _id: userId },
-      { $pull: { cards: cardId } }
-    );
-    res.send({ message: "card deleted successfully" });
-  }catch(err){
-    res.send({error:err.message})
+    const card = await stripe.customers.update(custId, {
+      default_source: cardId
+    });
+    res.send({ card: card });
+  } catch (err) {
+    res.send({ error: err.message });
   }
 }

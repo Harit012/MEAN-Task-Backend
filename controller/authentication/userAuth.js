@@ -18,7 +18,7 @@ exports.postLoginUser = async (req, res) => {
       const token = jwt.createToken({ email: req.body.email });
       res.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
       res.setHeader("Access-Control-Allow-Credentials", "true");
-      res.setHeader("sameSite", "none");
+      // res.setHeader("sameSite", "none");
       res.cookie("token", token);
       res.send({ token: token });
     }

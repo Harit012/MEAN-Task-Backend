@@ -15,17 +15,18 @@ const userSchema = new mongoose.Schema({
         required:true,
     },
     phone:{
-        type:Number,
+        type:String,
         required:true,
+        match:/^[0-9]{10}$/,
         unique:true
     },
     country:{
         type:mongoose.Schema.Types.ObjectId,
         required:true
     },
-    cards:{
-        type:[mongoose.Schema.Types.ObjectId],
-        required:false
+    customerId:{
+        type:String,
+        required:true
     }
 })
 module.exports = mongoose.model("user", userSchema);

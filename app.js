@@ -10,6 +10,8 @@ var multer = require("multer");
 const loginRouter = require("./routes/login");
 const adminPricingRouter = require("./routes/adminPricing");
 const userRouter = require("./routes/user");
+const driverRouter = require("./routes/driver");
+const settingRouter = require("./routes/settings");
 const { log } = require("console");
 
 var app = express();
@@ -24,7 +26,7 @@ try {
 const storage = multer.diskStorage({
   destination: "./public/images",
   filename: (req, file, cb) => {
-    console.log(req.file);
+    // console.log(req.file);
     cb(null, Date.now() + file.originalname);
   },
 });
@@ -42,7 +44,8 @@ app.use("/admin", loginRouter);
 
 app.use("/admin/pricing", upload.single("vehicleImage"), adminPricingRouter);
 app.use("/admin/users",upload.single("userProfile"), userRouter);
+app.use("/admin/drivers",upload.single("driverProfile"),driverRouter);
+app.use("/admin/settings",settingRouter);
 
-app.use(function (err, req, res, next) {});
 
 module.exports = app;

@@ -19,4 +19,6 @@ router.post('/card', cardController.postCard);
 
 router.delete('/card', cardController.deletecard);
 
+router.post('/card/default', cardController.setDefault);
+
 module.exports = router
