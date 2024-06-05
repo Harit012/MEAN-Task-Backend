@@ -26,7 +26,7 @@ exports.getVehicle = async (req, res) => {
     const vehicle = await vehicleModel.find();
     res.send({ vehicle });
   } catch (err) {
-    console.log(err);
+    res.send({ error: err.message });
   }
 };
 
@@ -53,7 +53,7 @@ exports.putVehicle = async (req, res) => {
     res.send({ vehicles: vehicles });
   } catch (err) {
     console.log("error Occured");
-    console.log(err);
+    console.log({error:err.message});
   }
 };
 exports.deleteVehicle = async (req, res) => {

@@ -1,4 +1,4 @@
-const { default: mongoose } = require("mongoose");
+// const { default: mongoose } = require("mongoose");
 const adminModel = require("../../models/admin");
 const jwt = require("../../controller/jwtOperations");
 
@@ -26,9 +26,9 @@ exports.postLoginUser = async (req, res) => {
 };
 
 exports.getVerifiedUser = (req, res, next) => {
-  if (req.headers.cookie) {
-    var token = req.headers.cookie;
-    const decoded = varifyToken(token);
+  if (req.cookies) {
+    var token = req.cookies.token;
+    const decoded = jwt.varifyToken(token);
     if (decoded) {
       next();
     } else {
@@ -40,16 +40,3 @@ exports.getVerifiedUser = (req, res, next) => {
     res.send({ varified: false });
   }
 };
-
-// exports.getVarifyUser = (req, res) => {
-//   // let cookie = req.headers.cookie;
-  
-//   const isUserAuthenticated = jwt.verify(req.headers.cookie);
-
-//   if(isUserAuthenticated){
-//     res.send({ varified:true });
-//   }
-//   else{
-//     res.send({ varified:false });
-//   }
-// };

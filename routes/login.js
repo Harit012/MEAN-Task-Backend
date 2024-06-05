@@ -4,6 +4,6 @@ var router = express.Router();
 
 router.post("/login", userAuth.postLoginUser);
 
-router.use("/admin", userAuth.getVerifiedUser)
+router.use("/", userAuth.getVerifiedUser)
 
 module.exports = router;

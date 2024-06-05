@@ -45,7 +45,7 @@ const pipeline = [
 exports.getVehiclePricing = async (req, res) => {
   try {
     let data = await vehiclePricing.aggregate([...pipeline]);
-    res.send(data);
+    res.send({ vehiclePricing: data });
   } catch (err) {
     console.log(err.message);
     res.send({ error: err.message });

@@ -37,7 +37,6 @@ exports.getUser = async (req, res) => {
       let page = req.query.page;
       var input = req.query.input;
       let sort = req.query.sort;
-      console.log(sort)
       switch(sort){
         case "none":
           if (input == "ThereIsNothing") {
@@ -193,7 +192,6 @@ exports.postUser = async (req, res) => {
       await newUser.save();
       res.send({ user: newUser });
     } catch (err) {
-      console.log(err.message);
       res.send({ error: err.message });
     }
   } else {
@@ -219,7 +217,6 @@ exports.deleteUser = async (req, res) => {
       );
       res.send({ message: "user Deleted successfully" });
     } catch (err) {
-      console.log(err);
       res.send({ error: err.message });
     }
   }
