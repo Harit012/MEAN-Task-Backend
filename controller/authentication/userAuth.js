@@ -18,25 +18,21 @@ exports.postLoginUser = async (req, res) => {
       const token = jwt.createToken({ email: req.body.email });
       res.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
       res.setHeader("Access-Control-Allow-Credentials", "true");
-      // res.setHeader("sameSite", "none");
-      res.cookie("token", token);
       res.send({ token: token });
     }
   }
 };
 
 exports.getVerifiedUser = (req, res, next) => {
-  if (req.cookies) {
-    var token = req.cookies.token;
+  if (req.headers.authorization) {
+    var token = req.headers.authorization;
     const decoded = jwt.varifyToken(token);
     if (decoded) {
       next();
     } else {
-      console.log("not varified");
       res.send({ varified: false });
     }
   } else {
-    console.log("not varified");
     res.send({ varified: false });
   }
 };
