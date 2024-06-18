@@ -28,18 +28,22 @@ const pipeline = [
 ];
 
 exports.getZone = async (req, res) => {
-  const country = new ObjectId(req.query.countryId);
-
-  try {
-    const zone = await zoneModel.aggregate([
-      {
-        $match: { country: country },
-      },
-      ...pipeline,
-    ]);
-    res.send({ zones: zone });
-  } catch (err) {
-    res.send({ error: err });
+  if (req.query.countryId) {
+    const country = new ObjectId(req.query.countryId);
+    try {
+      const zone = await zoneModel.aggregate([
+        {
+          $match: { country: country },
+        },
+        ...pipeline,
+      ]);
+      res.send({ zones: zone });
+    } catch (err) {
+      res.send({ error: err });
+    }
+  }
+  else{
+    res.send({ error: "CountryId is not Provided." });
   }
 };
 
@@ -93,30 +97,13 @@ exports.patchzone = async (req, res) => {
       ]);
       res.send({ zone: fatchedUpdatedZone[0] });
     } else {
-      console.log("error in line 65");
+      // console.log("error in line 65");
       res.send({ error: "Provided Fields are not correct !!" });
     }
   } catch (err) {
-    console.log("error in line 68");
+    // console.log("error in line 68");
     console.log(err.errorResponse);
     res.send({ error: err.message });
   }
 };
 
-exports.getzoneforpricing = async (req, res) => {
-  const city = new ObjectId(req.query.cityId);
-  try {
-    const zones = await zoneModel.aggregate([
-      { $match: { _id: city } },
-      {
-        $project: {
-          _id:0,
-          pricing: 1,
-        },
-      },
-    ]);
-    res.send(zones[0]);
-  } catch (err) {
-    res.send( err.message );
-  }
-};

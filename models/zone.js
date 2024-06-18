@@ -14,17 +14,7 @@ const zoneSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "country",
     required: true,
-  },
-  pricing:{
-    type:[
-        {vtype: String, hasvalue: Boolean ,pricingId:mongoose.Schema.Types.ObjectId},
-        {vtype: String, hasvalue: Boolean ,pricingId:mongoose.Schema.Types.ObjectId},
-        {vtype: String, hasvalue: Boolean ,pricingId:mongoose.Schema.Types.ObjectId},
-        {vtype: String, hasvalue: Boolean ,pricingId:mongoose.Schema.Types.ObjectId},     
-   ],
-   required:false
-  } 
-  
+  }   
 });
 
 module.exports = mongoose.model("zone", zoneSchema);

@@ -2,15 +2,20 @@ const SettingsModel = require("../../models/settings");
 const ObjectId = require("mongodb").ObjectId;
 
 exports.getSettings = async (req, res) => {
-  try {
-    let setting = await SettingsModel.find();
-    res.send({ settings: setting[0] });
-  } catch (err) {
-    res.send({ error: err.message });
-  }
+  setTimeout(async () => {
+    try {
+      let setting = await SettingsModel.find();
+      res.send({ settings: setting[0] });
+    } catch (err) {
+      res.send({ error: err.message });
+    }
+  },2000)
+  
 };
 
 exports.patchSettings = async (req, res) => {
+  setTimeout(async () => {
+
   try {
     const id = new ObjectId("665e91b8e54b312a06e372b6");
     let timeOut = req.body.timeOut;
@@ -23,4 +28,6 @@ exports.patchSettings = async (req, res) => {
   } catch (err) {
     res.send({ error: err.message });
   }
+},2000)
+
 };

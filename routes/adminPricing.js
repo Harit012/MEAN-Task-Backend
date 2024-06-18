@@ -1,5 +1,5 @@
 const express = require("express");
-const adminpricing = require("../controller/pricing/vehicleType");
+const vehicleTypes = require("../controller/pricing/vehicleType");
 const country = require("../controller/pricing/countryController");
 const zone = require("../controller/pricing/zoneController");
 const vehiclePricing = require("../controller/pricing/vehiclePricingController");
@@ -7,13 +7,16 @@ const router = express.Router();
 
 // admin/pricing/vehicle-type
 
-router.get("/vehicle-type", adminpricing.getVehicle);
+router.get("/vehicle-type", vehicleTypes.getVehicle);
 
-router.post("/vehicle-type", adminpricing.postVehicle);
+router.post("/vehicle-type", vehicleTypes.postVehicle);
 
-router.put("/vehicle-type", adminpricing.putVehicle);
+router.put("/vehicle-type", vehicleTypes.putVehicle);
 
-router.delete("/vehicle-type", adminpricing.deleteVehicle);
+router.delete("/vehicle-type", vehicleTypes.deleteVehicle);
+
+router.get("/vehicle-type/getAllTypes", vehicleTypes.getAllTypes);
+
 
 // admin/ pricing/country
 
@@ -29,7 +32,6 @@ router.post("/city", zone.postZone);
 
 router.patch("/city", zone.patchzone);
 
-router.get("/cityForPricing", zone.getzoneforpricing)
 
 // admin/pricing/vehicle-pricing
 
@@ -38,5 +40,8 @@ router.get("/vehicle-pricing", vehiclePricing.getVehiclePricing);
 router.post("/vehicle-pricing", vehiclePricing.postVehiclePricing);
 
 router.patch("/vehicle-pricing", vehiclePricing.patchVehiclePricing);
+
+router.get("/vehicle-pricing/getAvailableTypes", vehicleTypes.getTypesForPricing);
+
 
 module.exports = router;

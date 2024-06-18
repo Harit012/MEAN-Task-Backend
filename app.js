@@ -16,12 +16,23 @@ const { log } = require("console");
 
 var app = express();
 
-try {
-  mongoose.connect("mongodb://localhost:27017/angularbackend");
-  log("Database connected");
-} catch (err) {
-  log(err);
-}
+// try {
+//   mongoose.connect("mongodb://localhost:27017/angularbackend");
+//   log("Database connected");
+// } catch (err) {
+//   log(err);
+// }
+app.use(async(req,res,next)=>{
+  try {
+    let connection = await mongoose.connect("mongodb://localhost:27017/angularbackend");
+    // log(connection.connection.db);
+    next();
+  } catch (err) {
+    log(`err`);
+    
+    res.status(500).send({error:{message:"Database not connected"}})
+  }
+})
 
 const storage = multer.diskStorage({
   destination: "./public/images",

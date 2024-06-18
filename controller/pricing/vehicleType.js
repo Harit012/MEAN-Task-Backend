@@ -1,6 +1,25 @@
 const vehicleModel = require("../../models/vehicle");
+const vehiclePricing = require("../../models/vehiclePricing");
 const fs = require("fs");
 const path = require("path");
+const { ObjectId } = require("mongodb");
+var pipeline1 = [
+  {
+    $project: {
+      _id: 0,
+      type: 1,
+    },
+  },
+];
+var pipeline2 = [
+  {
+    $project: {
+      _id: 0,
+      vehicleType: 1,
+    },
+  },
+];
+
 exports.postVehicle = async (req, res) => {
   if (!req.file || !req.body.type) {
     res.send({ error: "Please enter all the fields" });
@@ -20,7 +39,6 @@ exports.postVehicle = async (req, res) => {
     }
   }
 };
-
 exports.getVehicle = async (req, res) => {
   try {
     const vehicle = await vehicleModel.find();
@@ -29,7 +47,6 @@ exports.getVehicle = async (req, res) => {
     res.send({ error: err.message });
   }
 };
-
 exports.putVehicle = async (req, res) => {
   if (req.file) {
     file = req.file.path;
@@ -53,7 +70,7 @@ exports.putVehicle = async (req, res) => {
     res.send({ vehicles: vehicles });
   } catch (err) {
     console.log("error Occured");
-    console.log({error:err.message});
+    console.log({ error: err.message });
   }
 };
 exports.deleteVehicle = async (req, res) => {
@@ -69,3 +86,49 @@ exports.deleteVehicle = async (req, res) => {
     console.log(err);
   }
 };
+exports.getTypesForPricing = async (req, res) => {
+  if (req.query.city) {
+    try {
+      let id = new ObjectId(req.query.city);
+      const vehicleTypes = await vehicleModel.aggregate([...pipeline1]);
+      const registeredPricing = await vehiclePricing.aggregate([
+        {
+          $match: {
+            city: id,
+          },
+        },
+        ...pipeline2,
+      ]);
+      onlyregisteredTypes = [];
+      availableTypes = [];
+      registeredPricing.forEach((element) => {
+        onlyregisteredTypes.push(element.vehicleType);
+      });
+      for (let i = 0; i < vehicleTypes.length; i++) {
+        if (onlyregisteredTypes.includes(vehicleTypes[i].type)) {
+          continue;
+        } else {
+          availableTypes.push(vehicleTypes[i].type);
+        }
+      }
+      res.send({ availableTypes });
+    } catch (err) {
+      console.log("Here");
+      res.status(500).send(err);
+    } 
+  } else {
+    res.status(500).send( "Please enter all the fields" );
+  }
+};
+exports.getAllTypes = async (req, res) => {
+  try{
+    const vehicleTypes = await vehicleModel.aggregate([...pipeline1]);
+    allVehicleTypes = [];
+    vehicleTypes.forEach((element) => {
+      allVehicleTypes.push(element.type);
+    })
+    res.send({ allVehicleTypes });
+  }catch(err){
+    res.status(500).send(err);
+  }
+}
