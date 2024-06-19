@@ -3,10 +3,14 @@ const countryModal = require("../../models/country");
 exports.getCountry = async (req, res) => {
   try {
     const countries = await countryModal.find();
-    res.send({ countries: countries });
+    res.status(200).send({ status: "Success", countries: countries });
   } catch (err) {
-    console.log(err);
-    res.send({ error: err });
+    res
+      .status(500)
+      .send({
+        status: "Failure",
+        message: "can not get countries from server",
+      });
   }
 };
 
@@ -19,7 +23,7 @@ exports.postCountry = async (req, res) => {
     !req.body.timezones ||
     !req.body.countryShortName
   ) {
-    res.send({ error: "Please enter all the fields" });
+    res.status(400).send("Please enter all the fields");
   } else {
     try {
       const country = new countryModal({
@@ -34,25 +38,30 @@ exports.postCountry = async (req, res) => {
       await country
         .save()
         .then((data) => {
-          res.send({ country: data });
+          res.status(200).send({status:"Success", country: data });
         })
         .catch((err) => {
+          console.log(err);
           switch (err.errorResponse.code) {
             case 11000:
-              res.send({
-                error: `County with name ${req.body.countryName} Already Exists.`,
-              });
+              res
+                .status(11000)
+                .send({ status: "Failure", message: "Country Already Exists" });
               break;
             default:
               console.log(err);
-              res.send({ error: err.message });
+              res
+                .status(500)
+                .send({
+                  status: "Failure",
+                  message: "can not post country in server",
+                });
           }
         });
     } catch (err) {
-      switch (err.errorResponse.code) {
-        default:
-          res.send({ error: err.message });
-      }
+      res
+        .status(500)
+        .send({ status: "Failure", message: "can not post country in server" });
     }
   }
 };

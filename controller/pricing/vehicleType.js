@@ -22,9 +22,13 @@ var pipeline2 = [
 
 exports.postVehicle = async (req, res) => {
   if (!req.file || !req.body.type) {
-    res.send({ error: "Please enter all the fields" });
-  } else {
-    let file = req.file.path;
+    var file = req.file.path;
+    file = file.slice(6, file.length);
+    fs.unlink(path.join(__dirname, `../../public/${file}`), (res) => {});
+    res.status(400).send({status:"Failure", message: "Please enter all the fields" });
+  } 
+  else {
+    var file = req.file.path;
     file = file.slice(6, file.length);
     try {
       const vehicle = new vehicleModel({
@@ -33,18 +37,21 @@ exports.postVehicle = async (req, res) => {
       });
       await vehicle.save();
       const vehicles = await vehicleModel.find();
-      res.send({ vehicles: vehicles });
-    } catch (err) {
-      console.log(err);
+      res.status(201).send({status:"Success", vehicles: vehicles });
+    } 
+    catch (err) {
+      console.log(file)
+      fs.unlink(path.join(__dirname, `../../public/${file}`), (res) => {});
+      res.status(500).send({status:"Failure", message: "can not post to server" });
     }
   }
 };
 exports.getVehicle = async (req, res) => {
   try {
     const vehicle = await vehicleModel.find();
-    res.send({ vehicle });
+    res.status(200).send({status:"Success", vehicle:vehicle });
   } catch (err) {
-    res.send({ error: err.message });
+    res.status(500).send({status:"Failure", message: "can not get vehicles from server" });
   }
 };
 exports.putVehicle = async (req, res) => {
@@ -67,23 +74,22 @@ exports.putVehicle = async (req, res) => {
       }
     );
     const vehicles = await vehicleModel.find();
-    res.send({ vehicles: vehicles });
+    res.status(200).send({status:"Success", vehicles: vehicles });
   } catch (err) {
-    console.log("error Occured");
-    console.log({ error: err.message });
+    res.status(500).send({status:"Failure", message: "can not get vehicles from server" });
   }
 };
 exports.deleteVehicle = async (req, res) => {
   try {
     const vehicle = await vehicleModel.findByIdAndDelete(req.query.id);
     const vehicles = await vehicleModel.find();
-    res.send({ vehicles: vehicles });
+    res.status(200).send({status:"Success", vehicles: vehicles });
     fs.unlink(
       path.join(__dirname, `../../public/${vehicle.vehicleImage}`),
       (res) => {}
     );
   } catch (err) {
-    console.log(err);
+    res.status(500).send({status:"Failure", message: "can not get vehicles from server" });
   }
 };
 exports.getTypesForPricing = async (req, res) => {
@@ -111,13 +117,12 @@ exports.getTypesForPricing = async (req, res) => {
           availableTypes.push(vehicleTypes[i].type);
         }
       }
-      res.send({ availableTypes });
+      res.status(200).send({status:"Success", availableTypes });
     } catch (err) {
-      console.log("Here");
-      res.status(500).send(err);
+      res.status(500).send({status:"Failure", message: "can not get vehicle-Types from server" });
     } 
   } else {
-    res.status(500).send( "Please enter all the fields" );
+    res.status(400).send({status:"Failure", message:"Please enter all the fields"} );
   }
 };
 exports.getAllTypes = async (req, res) => {
@@ -127,8 +132,8 @@ exports.getAllTypes = async (req, res) => {
     vehicleTypes.forEach((element) => {
       allVehicleTypes.push(element.type);
     })
-    res.send({ allVehicleTypes });
+    res.status(200).send({status:"Success", allVehicleTypes });
   }catch(err){
-    res.status(500).send(err);
+    res.status(500).send({status:"Failure", message: "can not get vehicle-Types from server" });
   }
 }

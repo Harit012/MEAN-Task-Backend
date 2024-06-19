@@ -32,11 +32,11 @@ const pipeline = [
 ];
 
 exports.getUser = async (req, res) => {
+  if (req.query.input && req.query.page && req.query.sort) {
+    let page = req.query.page;
+    var input = req.query.input;
+    let sort = req.query.sort;
   try {
-    if (req.query.input && req.query.page && req.query.sort) {
-      let page = req.query.page;
-      var input = req.query.input;
-      let sort = req.query.sort;
       switch(sort){
         case "none":
           if (input == "ThereIsNothing") {
@@ -44,7 +44,7 @@ exports.getUser = async (req, res) => {
               .aggregate([...pipeline ])
               .skip(page * userPerPage)
               .limit(userPerPage);
-            res.send({ users: users });
+              res.status(200).send({status:"Success", users: users });
           } else {
             const users = await userModel
               .aggregate([
@@ -61,11 +61,9 @@ exports.getUser = async (req, res) => {
               ])
               .skip(page * userPerPage)
               .limit(userPerPage);
-            res.send({ users: users });
+              res.status(200).send({status:"Success", users: users });
           }
           break;
-
-
 
         case "name":
           if (input == "ThereIsNothing") {
@@ -73,7 +71,7 @@ exports.getUser = async (req, res) => {
               .aggregate([...pipeline, { $sort: { userName: 1 } }])
               .skip(page * userPerPage)
               .limit(userPerPage);
-            res.send({ users: users });
+              res.status(200).send({status:"Success", users: users });
           } else {
             const users = await userModel
               .aggregate([
@@ -93,10 +91,9 @@ exports.getUser = async (req, res) => {
               ])
               .skip(page * userPerPage)
               .limit(userPerPage);
-            res.send({ users: users });
+              res.status(200).send({status:"Success", users: users });
           }
           break;
-
 
         case "email":
           if (input == "ThereIsNothing") {
@@ -104,7 +101,7 @@ exports.getUser = async (req, res) => {
               .aggregate([...pipeline, { $sort: { email: 1 } }])
               .skip(page * userPerPage)
               .limit(userPerPage);
-            res.send({ users: users });
+              res.status(200).send({status:"Success", users: users });
           } else {
             const users = await userModel
               .aggregate([
@@ -124,16 +121,17 @@ exports.getUser = async (req, res) => {
               ])
               .skip(page * userPerPage)
               .limit(userPerPage);
-            res.send({ users: users });
+              res.status(200).send({status:"Success", users: users });
           }
           break;
+       
         case "phone":
           if (input == "ThereIsNothing") {
             const users = await userModel
               .aggregate([...pipeline, { $sort: { phone: 1 } }])
               .skip(page * userPerPage)
               .limit(userPerPage);
-            res.send({ users: users });
+              res.status(200).send({status:"Success", users: users });
           } else {
             const users = await userModel
               .aggregate([
@@ -153,16 +151,16 @@ exports.getUser = async (req, res) => {
               ])
               .skip(page * userPerPage)
               .limit(userPerPage);
-            res.send({ users: users });
+            res.status(200).send({status:"Success", users: users });
           }
           break;
       }
-    } 
-    else {
-      res.send({ error: "Please provide search Input" });
+    } catch (err) {
+      res.status(500).send({status:"Failure" , message: "can not get user from server" });
     }
-  } catch (err) {
-    res.send({ error: err.message });
+  }
+  else {
+    res.status(400).send({status:"Failure", message: "page/input/sort Somthing is not Provides" });
   }
 };
 
@@ -190,23 +188,23 @@ exports.postUser = async (req, res) => {
         userProfile: file,
       });
       await newUser.save();
-      res.send({ user: newUser });
+      res.status(200).send({status:"Success", user: newUser });
     } catch (err) {
-      res.send({ error: err.message });
+      res.status(500).send({status:"Failure", message:"can not Add user in Servere" });
     }
   } else {
     fs.unlink(
       path.join(__dirname, `../../public/${file}`),
       (res) => {}
     );
-    res.send({ error: "Not all fields are provided." });
+    res.status(400).send({status:"Failure", message: "Not all fields are provided." });
   }
 };
 
 exports.deleteUser = async (req, res) => {
   const id = req.query.id;
   const customerId = req.query.customerId;  
-  if (id) {
+  if (id && customerId) {
     try {
       const deleted = await stripe.customers.del(customerId);
 
@@ -215,16 +213,19 @@ exports.deleteUser = async (req, res) => {
         path.join(__dirname, `../../public/${deletedUser.userProfile}`),
         (res) => {}
       );
-      res.send({ message: "user Deleted successfully" });
+      res.status(200).send({status:"Success", message: "user Deleted successfully" });
     } catch (err) {
-      res.send({ error: err.message });
+      res.status(500).send({status:"Failure", message: "can not delete user from the server" });
     }
+  }
+  else{
+    res.status(400).send({status:"Failure", message: "Id or customerId is not Provided" });
   }
 };
 
 exports.putUser = async (req, res) => {
-  const data = req.body;
-  const id = req.body.id;
+  var data = req.body;
+  var id = req.body.id;
   if (req.file) {
     var newpath = req.file.path;
     newpath = newpath.slice(6, newpath.length);
@@ -246,8 +247,8 @@ exports.putUser = async (req, res) => {
         userProfile: newpath,
       }
     );
-    res.send({ message: "User Updated Successfully" });
+    res.status(200).send({status:"Success", message: "User Updated Successfully" });
   } catch (err) {
-    res.send({ error: err.message });
+    res.status(500).send({status:"Failure", message: "can not update from server" });
   }
 };

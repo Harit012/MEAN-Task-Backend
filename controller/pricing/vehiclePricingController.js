@@ -45,10 +45,9 @@ const pipeline = [
 exports.getVehiclePricing = async (req, res) => {
   try {
     let data = await vehiclePricing.aggregate([...pipeline]);
-    res.send({ vehiclePricing: data });
+    res.status(200).send({status:"Success", vehiclePricing: data });
   } catch (err) {
-    console.log(err.message);
-    res.send({ error: err.message });
+    res.status(500).send({status:"Failure", message: "can not get vehicle-pricing from server" });
   }
 };
 
@@ -57,27 +56,14 @@ exports.postVehiclePricing = async (req, res) => {
   try {
     let vehicle = new vehiclePricing(data);
     let result = await vehicle.save();
-    // let vehicleType = req.body.vehicleType;
-    // let tempzone = await zoneModel.findOneAndUpdate(
-    //   { _id: req.body.city },
-    //   {
-    //     $set: {
-    //       "pricing.$[elem].pricingId": result._id,
-    //       "pricing.$[elem].hasvalue":true
-    //     },
-    //   },
-    //   { arrayFilters: [{ "elem.vtype": vehicleType }] }
-    // );
-    // tempzone.save();
     let id = new ObjectId(result._id);
     output = await vehiclePricing.aggregate([
       { $match: { _id: id } },
       ...pipeline,
     ]);
-    res.send({ vehiclePricing: output[0] });
+    res.status(200).send({status:"Success", vehiclePricing: output[0] });
   } catch (err) {
-    console.log(err.message);
-    res.send({ error: err.message });
+    res.status(500).send({status:"Failure", message: "can not add vehicle-pricing in server" });
   }
 };
 
@@ -89,9 +75,8 @@ exports.patchVehiclePricing = async (req, res) => {
       { $match: { _id: id } },
       ...pipeline,
     ]);
-    res.send({ vehiclePricing: output[0] });
+    res.status(200).send({status:"Success", vehiclePricing: output[0] });
   } catch (err) {
-    console.log(err.message);
-    res.send({ error: err.message });
+    res.status(500).send({status:"Failure", message: "can not update vehicle-pricing in server" });
   }
 };

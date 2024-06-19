@@ -37,19 +37,25 @@ exports.getZone = async (req, res) => {
         },
         ...pipeline,
       ]);
-      res.send({ zones: zone });
+      res.status(200).send({ status: "Success", zones: zone });
     } catch (err) {
-      res.send({ error: err });
+      res.status(500).send({
+        status: "Failure",
+        message: "can not get City/Cities from server",
+      });
     }
-  }
-  else{
-    res.send({ error: "CountryId is not Provided." });
+  } else {
+    res
+      .status(400)
+      .send({ status: "Failure", message: "CountryId is not Provided." });
   }
 };
 
 exports.postZone = async (req, res) => {
   if (!req.body.country || !req.body.boundry || !req.body.zoneName) {
-    res.send({ error: "Please enter all the fields" });
+    res
+      .status(400)
+      .send({ status: "Failure", message: "All the Fields are not Provided" });
   } else {
     try {
       const zone = new zoneModel({
@@ -70,21 +76,26 @@ exports.postZone = async (req, res) => {
         { $match: { country: country } },
         ...pipeline,
       ]);
-      res.send({ zones: zones });
+      res.send({ status: "Success", zones: zones });
     } catch (err) {
-      console.log("error Occured at line 92");
       if (err.errorResponse == 11000) {
-        res.send({ error: `zone at ${req.body.zoneName} already exists` });
+        res.status(11000).send({
+          status: "Failure",
+          message: `zone at ${req.body.zoneName} already exists`,
+        });
       } else {
-        res.send({ error: err.message });
+        res.status(500).send({
+          status: "Failure",
+          message: "can not Add City/Zone in server",
+        });
       }
     }
   }
 };
 
 exports.patchzone = async (req, res) => {
-  try {
-    if (req.body.id != "" && req.body.boundry != []) {
+  if (req.body.id && req.body.boundry ) {
+    try {
       const updatedZone = await zoneModel.findOneAndUpdate(
         { _id: req.body.id },
         { boundry: req.body.boundry }
@@ -95,15 +106,18 @@ exports.patchzone = async (req, res) => {
         { $match: { _id: id } },
         ...pipeline,
       ]);
-      res.send({ zone: fatchedUpdatedZone[0] });
-    } else {
-      // console.log("error in line 65");
-      res.send({ error: "Provided Fields are not correct !!" });
+      res.status(200).send({ status: "Success", zone: fatchedUpdatedZone[0] });
+    } catch (err) {
+      res
+        .status(500)
+        .send({ status: "Failure", error: "Cannot update zone in server" });
     }
-  } catch (err) {
-    // console.log("error in line 68");
-    console.log(err.errorResponse);
-    res.send({ error: err.message });
+  } else {
+    res
+      .status(400)
+      .send({
+        status: "Failure",
+        message: "Provided Fields are not correct !!",
+      });
   }
 };
-
