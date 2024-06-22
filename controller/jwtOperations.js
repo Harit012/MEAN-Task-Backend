@@ -6,14 +6,16 @@ exports.createToken = (data) => {
 exports.varifyToken = (token) => {
   const authToken  = token.slice(7,token.length)
   try {
-    let result = jwt.verify(authToken, process.env.SECRET);
+    jwt.verify(authToken, process.env.SECRET);
     const {exp} = jwt.decode(authToken); 
+    return exp > new Date().getTime() / 1000
 
-    if(exp< new Date().getTime() / 1000) {
-      return false
-    }else{
-      return true;
-    }
+    // // if(exp< new Date().getTime() / 1000) {
+    //  //  return false
+    //  // }else{
+    //  // return true;
+    //  //}
+
   } catch (err) {
     return false;
   }

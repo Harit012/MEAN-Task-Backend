@@ -31,10 +31,10 @@ const pipeline = [
   },
 ];
 
-exports.getUser = async (req, res) => {
+exports.getUser = async (req, res) =>{
   if (req.query.input && req.query.page && req.query.sort) {
     let page = req.query.page;
-    var input = req.query.input;
+    let input = req.query.input;
     let sort = req.query.sort;
   try {
       switch(sort){
@@ -160,7 +160,7 @@ exports.getUser = async (req, res) => {
     }
   }
   else {
-    res.status(400).send({status:"Failure", message: "page/input/sort Somthing is not Provides" });
+    res.status(400).send({status:"Failure", message: "page/input/sort Somthing is not Provided" });
   }
 };
 
@@ -206,7 +206,7 @@ exports.deleteUser = async (req, res) => {
   const customerId = req.query.customerId;  
   if (id && customerId) {
     try {
-      const deleted = await stripe.customers.del(customerId);
+      await stripe.customers.del(customerId);
 
       let deletedUser = await userModel.findOneAndDelete({ _id: id });
       fs.unlink(
@@ -224,17 +224,18 @@ exports.deleteUser = async (req, res) => {
 };
 
 exports.putUser = async (req, res) => {
-  var data = req.body;
-  var id = req.body.id;
+  let data = req.body;
+  let id = req.body.id;
+  let newpath ="";
   if (req.file) {
-    var newpath = req.file.path;
+    newpath = req.file.path;
     newpath = newpath.slice(6, newpath.length);
     fs.unlink(
       path.join(__dirname, `../../public/${req.body.olduserProfile}`),
       (res) => {}
     );
   } else {
-    var newpath = req.body.olduserProfile;
+    newpath = req.body.olduserProfile;
   }
   try {
     await userModel.findOneAndUpdate(

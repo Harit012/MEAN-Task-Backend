@@ -57,7 +57,7 @@ exports.postVehiclePricing = async (req, res) => {
     let vehicle = new vehiclePricing(data);
     let result = await vehicle.save();
     let id = new ObjectId(result._id);
-    output = await vehiclePricing.aggregate([
+    let output = await vehiclePricing.aggregate([
       { $match: { _id: id } },
       ...pipeline,
     ]);

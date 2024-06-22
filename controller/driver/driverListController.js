@@ -40,7 +40,7 @@ const pipeline = [
 ];
 
 exports.getDrivers = async (req, res) => {
-  const page = req.query.page;
+  let page = req.query.page;
   const sort = req.query.sort;
   const input = req.query.input;
   if (req.query.page && req.query.sort && req.query.input) {
@@ -48,7 +48,10 @@ exports.getDrivers = async (req, res) => {
       switch (sort) {
         case "none":
           if (input == "ThereIsNothing") {
-            const drivers = await driverModel.aggregate([...pipeline]);
+            const drivers = await driverModel
+              .aggregate([...pipeline])
+              .skip(page * driversPerPage)
+              .limit(driversPerPage);
             res.status(200).send({ status: "Success", drivers: drivers });
           } else {
             const drivers = await driverModel
@@ -66,16 +69,18 @@ exports.getDrivers = async (req, res) => {
               ])
               .skip(page * driversPerPage)
               .limit(driversPerPage);
+            console.log(drivers);
+
             res.status(200).send({ status: "Success", drivers: drivers });
           }
           break;
 
         case "name":
           if (input == "ThereIsNothing") {
-            const drivers = await driverModel.aggregate([
-              ...pipeline,
-              { $sort: { driverName: 1 } },
-            ]);
+            const drivers = await driverModel
+              .aggregate([...pipeline, { $sort: { driverName: 1 } }])
+              .skip(page * driversPerPage)
+              .limit(driversPerPage);
             res.status(200).send({ status: "Success", drivers: drivers });
           } else {
             const drivers = await driverModel
@@ -100,10 +105,10 @@ exports.getDrivers = async (req, res) => {
 
         case "email":
           if (input == "ThereIsNothing") {
-            const drivers = await driverModel.aggregate([
-              ...pipeline,
-              { $sort: { driverEmail: 1 } },
-            ]);
+            const drivers = await driverModel
+              .aggregate([...pipeline, { $sort: { driverEmail: 1 } }])
+              .skip(page * driversPerPage)
+              .limit(driversPerPage);
             res.status(200).send({ status: "Success", drivers: drivers });
           } else {
             const drivers = await driverModel
@@ -123,17 +128,15 @@ exports.getDrivers = async (req, res) => {
               .skip(page * driversPerPage)
               .limit(driversPerPage);
             res.res.status(200).send({ status: "Success", drivers: drivers });
-            // .skip(page * driversPerPage)
-            // .limit(driversPerPage);
           }
           break;
 
         case "phone":
           if (input == "ThereIsNothing") {
-            const drivers = await driverModel.aggregate([
-              ...pipeline,
-              { $sort: { phone: 1 } },
-            ]);
+            const drivers = await driverModel
+              .aggregate([...pipeline, { $sort: { phone: 1 } }])
+              .skip(page * driversPerPage)
+              .limit(driversPerPage);
             res.status(200).send({ status: "Success", drivers: drivers });
           } else {
             const drivers = await driverModel
@@ -181,7 +184,6 @@ exports.postDriver = async (req, res) => {
     try {
       let driverProfile = req.file.path;
       driverProfile = driverProfile.slice(6, driverProfile.length);
-      console.log(driverProfile);
       const driver = new driverModel({
         driverProfile: driverProfile,
         driverEmail: req.body.driverEmail,
@@ -194,20 +196,19 @@ exports.postDriver = async (req, res) => {
       res.status(201).send({ status: "Success", driver: driver });
     } catch (err) {
       if (req.file) {
-        var newpath = req.file.path;
+        let newpath = req.file.path;
         newpath = newpath.slice(6, newpath.length);
         fs.unlink(path.join(__dirname, `../../public/${newpath}`), (res) => {});
       }
-      res
-        .status(500)
-        .send({
-          status: "Failure",
-          message: "can not add driver failure from server",
-        });
+      console.log(err);
+      res.status(500).send({
+        status: "Failure",
+        message: "can not add driver failure from server",
+      });
     }
   } else {
     if (req.file) {
-      var newpath = req.file.path;
+      let newpath = req.file.path;
       newpath = newpath.slice(6, newpath.length);
       fs.unlink(path.join(__dirname, `../../public/${newpath}`), (res) => {});
     }
@@ -229,12 +230,10 @@ exports.deleteDriver = async (req, res) => {
         .status(200)
         .send({ status: "Success", message: "Driver Deleted successfully" });
     } catch (err) {
-      res
-        .status(500)
-        .send({
-          status: "Failure",
-          message: "can not delete driver from the server",
-        });
+      res.status(500).send({
+        status: "Failure",
+        message: "can not delete driver from the server",
+      });
     }
   } else {
     res.status(400).send({ status: "Failure", message: "Id is not Provided" });
@@ -248,33 +247,30 @@ exports.patchDriver = async (req, res) => {
     await driverModel.findByIdAndUpdate(id, {
       approved: approvelStatus,
     });
-    res
-      .status(200)
-      .send({
-        status: "Success",
-        message: "Driver Approvel updated successfully",
-      });
+    res.status(200).send({
+      status: "Success",
+      message: "Driver Approvel updated successfully",
+    });
   } catch (err) {
-    res
-      .status(500)
-      .send({
-        status: "Failure",
-        message: "can not update driver from the server",
-      });
+    res.status(500).send({
+      status: "Failure",
+      message: "can not update driver from the server",
+    });
   }
 };
 
 exports.putDriver = async (req, res) => {
   const data = req.body;
+  let newpath = "";
   if (req.file) {
-    var newpath = req.file.path;
+    newpath = req.file.path;
     newpath = newpath.slice(6, newpath.length);
     fs.unlink(
       path.join(__dirname, `../../public/${req.body.driverProfile}`),
       (res) => {}
     );
   } else {
-    var newPath = req.body.driverProfile;
+    newpath = req.body.driverProfile;
   }
   try {
     await driverModel.findByIdAndUpdate(
@@ -313,7 +309,10 @@ exports.patchServiceType = async (req, res) => {
         message: "can not update serviceType from the server",
       });
     }
-  }else{
-    res.status(400).send({ status: "Failure", message: "Id or ServiceType is not Provided" });
+  } else {
+    res.status(400).send({
+      status: "Failure",
+      message: "Id or ServiceType is not Provided",
+    });
   }
 };

@@ -15,7 +15,7 @@ exports.getSettings = async (req, res) => {
 };
 
 exports.patchSettings = async (req, res) => {
-  setTimeout(async () => {
+  // setTimeout(async () => {
     if (!req.body.timeOut && !req.body.stops) {
       res
         .status(400)
@@ -43,5 +43,5 @@ exports.patchSettings = async (req, res) => {
           });
       }
     }
-  }, 2000);
+  // }, 2000);
 };

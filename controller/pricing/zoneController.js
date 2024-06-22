@@ -1,4 +1,4 @@
-zoneModel = require("../../models/zone");
+const zoneModel = require("../../models/zone");
 const { ObjectId } = require("mongodb");
 
 const pipeline = [

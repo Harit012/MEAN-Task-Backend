@@ -1,4 +1,3 @@
-// const { default: mongoose } = require("mongoose");
 const adminModel = require("../../models/admin");
 const jwt = require("../../controller/jwtOperations");
 
@@ -8,11 +7,6 @@ exports.postLoginUser = async (req, res) => {
     res.status(400).send({
       status: "Failure",
       message: "Email or Password not Provided",
-    });
-  } else if (data.email == "none" || data.password == "none") {
-    res.status(400).send({
-      status: "Failure",
-      message: "Email or Password has not valid values",
     });
   } else {
     const user = await adminModel.findOne({
@@ -32,7 +26,7 @@ exports.postLoginUser = async (req, res) => {
 
 exports.getVerifiedUser = (req, res, next) => {
   if (req.headers.authorization) {
-    var token = req.headers.authorization;
+    let token = req.headers.authorization;
     const decoded = jwt.varifyToken(token);
     if (decoded) {
       next();
