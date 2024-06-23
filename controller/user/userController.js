@@ -26,207 +26,193 @@ const pipeline = [
       countryName: "$country.countryName",
       phone: 1,
       userProfile: 1,
-      customerId:1
+      customerId: 1,
     },
   },
 ];
 
-exports.getUser = async (req, res) =>{
-  if (req.query.input && req.query.page && req.query.sort) {
-    let page = req.query.page;
-    let input = req.query.input;
-    let sort = req.query.sort;
+exports.getUser = async (req, res) => {
+  let page = req.query.page;
+  let input = req.query.input;
+  let sort = req.query.sort;
   try {
-      switch(sort){
-        case "none":
-          if (input == "ThereIsNothing") {
-            const users = await userModel
-              .aggregate([...pipeline ])
-              .skip(page * userPerPage)
-              .limit(userPerPage);
-              res.status(200).send({status:"Success", users: users });
-          } else {
-            const users = await userModel
-              .aggregate([
-                {
-                  $match: {
-                    $or: [
-                      { userName: { $regex: input, $options: "i" } },
-                      { userEmail: { $regex: input, $options: "i" } },
-                      { phone: { $regex: input, $options: "i" } },
-                    ],
-                  },
+    switch (sort) {
+      case "none":
+        if (input == "ThereIsNothing") {
+          const users = await userModel
+            .aggregate([...pipeline])
+            .skip(page * userPerPage)
+            .limit(userPerPage);
+          res.status(200).send({ status: "Success", users: users });
+        } else {
+          const users = await userModel
+            .aggregate([
+              {
+                $match: {
+                  $or: [
+                    { userName: { $regex: input, $options: "i" } },
+                    { userEmail: { $regex: input, $options: "i" } },
+                    { phone: { $regex: input, $options: "i" } },
+                  ],
                 },
-                ...pipeline,  
-              ])
-              .skip(page * userPerPage)
-              .limit(userPerPage);
-              res.status(200).send({status:"Success", users: users });
-          }
-          break;
+              },
+              ...pipeline,
+            ])
+            .skip(page * userPerPage)
+            .limit(userPerPage);
+          res.status(200).send({ status: "Success", users: users });
+        }
+        break;
 
-        case "name":
-          if (input == "ThereIsNothing") {
-            const users = await userModel
-              .aggregate([...pipeline, { $sort: { userName: 1 } }])
-              .skip(page * userPerPage)
-              .limit(userPerPage);
-              res.status(200).send({status:"Success", users: users });
-          } else {
-            const users = await userModel
-              .aggregate([
-                {
-                  $match: {
-                    $or: [
-                      { userName: { $regex: input, $options: "i" } },
-                      { userEmail: { $regex: input, $options: "i" } },
-                      { phone: { $regex: input, $options: "i" } },
-                    ],
-                  },
+      case "name":
+        if (input == "ThereIsNothing") {
+          const users = await userModel
+            .aggregate([...pipeline, { $sort: { userName: 1 } }])
+            .skip(page * userPerPage)
+            .limit(userPerPage);
+          res.status(200).send({ status: "Success", users: users });
+        } else {
+          const users = await userModel
+            .aggregate([
+              {
+                $match: {
+                  $or: [
+                    { userName: { $regex: input, $options: "i" } },
+                    { userEmail: { $regex: input, $options: "i" } },
+                    { phone: { $regex: input, $options: "i" } },
+                  ],
                 },
-                ...pipeline,
-                {
-                  $sort: { userName: 1 },
-                }
-              ])
-              .skip(page * userPerPage)
-              .limit(userPerPage);
-              res.status(200).send({status:"Success", users: users });
-          }
-          break;
+              },
+              ...pipeline,
+              {
+                $sort: { userName: 1 },
+              },
+            ])
+            .skip(page * userPerPage)
+            .limit(userPerPage);
+          res.status(200).send({ status: "Success", users: users });
+        }
+        break;
 
-        case "email":
-          if (input == "ThereIsNothing") {
-            const users = await userModel
-              .aggregate([...pipeline, { $sort: { email: 1 } }])
-              .skip(page * userPerPage)
-              .limit(userPerPage);
-              res.status(200).send({status:"Success", users: users });
-          } else {
-            const users = await userModel
-              .aggregate([
-                {
-                  $match: {
-                    $or: [
-                      { userName: { $regex: input, $options: "i" } },
-                      { userEmail: { $regex: input, $options: "i" } },
-                      { phone: { $regex: input, $options: "i" } },
-                    ],
-                  },
+      case "email":
+        if (input == "ThereIsNothing") {
+          const users = await userModel
+            .aggregate([...pipeline, { $sort: { email: 1 } }])
+            .skip(page * userPerPage)
+            .limit(userPerPage);
+          res.status(200).send({ status: "Success", users: users });
+        } else {
+          const users = await userModel
+            .aggregate([
+              {
+                $match: {
+                  $or: [
+                    { userName: { $regex: input, $options: "i" } },
+                    { userEmail: { $regex: input, $options: "i" } },
+                    { phone: { $regex: input, $options: "i" } },
+                  ],
                 },
-                ...pipeline,
-                {
-                  $sort: { email: 1 },
-                }
-              ])
-              .skip(page * userPerPage)
-              .limit(userPerPage);
-              res.status(200).send({status:"Success", users: users });
-          }
-          break;
-       
-        case "phone":
-          if (input == "ThereIsNothing") {
-            const users = await userModel
-              .aggregate([...pipeline, { $sort: { phone: 1 } }])
-              .skip(page * userPerPage)
-              .limit(userPerPage);
-              res.status(200).send({status:"Success", users: users });
-          } else {
-            const users = await userModel
-              .aggregate([
-                {
-                  $match: {
-                    $or: [
-                      { userName: { $regex: input, $options: "i" } },
-                      { userEmail: { $regex: input, $options: "i" } },
-                      { phone: { $regex: input, $options: "i" } },
-                    ],
-                  },
+              },
+              ...pipeline,
+              {
+                $sort: { email: 1 },
+              },
+            ])
+            .skip(page * userPerPage)
+            .limit(userPerPage);
+          res.status(200).send({ status: "Success", users: users });
+        }
+        break;
+
+      case "phone":
+        if (input == "ThereIsNothing") {
+          const users = await userModel
+            .aggregate([...pipeline, { $sort: { phone: 1 } }])
+            .skip(page * userPerPage)
+            .limit(userPerPage);
+          res.status(200).send({ status: "Success", users: users });
+        } else {
+          const users = await userModel
+            .aggregate([
+              {
+                $match: {
+                  $or: [
+                    { userName: { $regex: input, $options: "i" } },
+                    { userEmail: { $regex: input, $options: "i" } },
+                    { phone: { $regex: input, $options: "i" } },
+                  ],
                 },
-                ...pipeline,
-                {
-                  $sort: { phone: 1 },
-                }
-              ])
-              .skip(page * userPerPage)
-              .limit(userPerPage);
-            res.status(200).send({status:"Success", users: users });
-          }
-          break;
-      }
-    } catch (err) {
-      res.status(500).send({status:"Failure" , message: "can not get user from server" });
+              },
+              ...pipeline,
+              {
+                $sort: { phone: 1 },
+              },
+            ])
+            .skip(page * userPerPage)
+            .limit(userPerPage);
+          res.status(200).send({ status: "Success", users: users });
+        }
+        break;
     }
-  }
-  else {
-    res.status(400).send({status:"Failure", message: "page/input/sort Somthing is not Provided" });
+  } catch (err) {
+    res
+      .status(500)
+      .send({ status: "Failure", message: "can not get user from server" });
   }
 };
 
 exports.postUser = async (req, res) => {
-  if (
-    req.body.userName ||
-    req.body.email ||
-    req.body.country ||
-    req.body.phone ||
-    req.file.path
-  ) {
-    try {
-      let file = req.file.path;
-      file = file.slice(6, file.length);
-      const customer = await stripe.customers.create({
-        name: req.body.userName,
-        email: req.body.email,
-      });
-      const newUser = new userModel({
-        customerId: customer.id,
-        userName: req.body.userName,
-        userEmail: req.body.email,
-        country: req.body.country,
-        phone: req.body.phone,
-        userProfile: file,
-      });
-      await newUser.save();
-      res.status(200).send({status:"Success", user: newUser });
-    } catch (err) {
-      res.status(500).send({status:"Failure", message:"can not Add user in Servere" });
-    }
-  } else {
-    fs.unlink(
-      path.join(__dirname, `../../public/${file}`),
-      (res) => {}
-    );
-    res.status(400).send({status:"Failure", message: "Not all fields are provided." });
+  try {
+    let file = req.file.path;
+    file = file.slice(6, file.length);
+    const customer = await stripe.customers.create({
+      name: req.body.userName,
+      email: req.body.email,
+    });
+    const newUser = new userModel({
+      customerId: customer.id,
+      userName: req.body.userName,
+      userEmail: req.body.email,
+      country: req.body.country,
+      phone: req.body.phone,
+      userProfile: file,
+    });
+    await newUser.save();
+    res.status(200).send({ status: "Success", user: newUser });
+  } catch (err) {
+    fs.unlink(path.join(__dirname, `../../public/${file}`), (res) => {});
+    res
+      .status(500)
+      .send({ status: "Failure", message: "can not Add user in Servere" });
   }
 };
 
 exports.deleteUser = async (req, res) => {
   const id = req.query.id;
-  const customerId = req.query.customerId;  
-  if (id && customerId) {
-    try {
-      await stripe.customers.del(customerId);
+  const customerId = req.query.customerId;
+  try {
+    await stripe.customers.del(customerId);
 
-      let deletedUser = await userModel.findOneAndDelete({ _id: id });
-      fs.unlink(
-        path.join(__dirname, `../../public/${deletedUser.userProfile}`),
-        (res) => {}
-      );
-      res.status(200).send({status:"Success", message: "user Deleted successfully" });
-    } catch (err) {
-      res.status(500).send({status:"Failure", message: "can not delete user from the server" });
-    }
-  }
-  else{
-    res.status(400).send({status:"Failure", message: "Id or customerId is not Provided" });
+    let deletedUser = await userModel.findOneAndDelete({ _id: id });
+    fs.unlink(
+      path.join(__dirname, `../../public/${deletedUser.userProfile}`),
+      (res) => {}
+    );
+    res
+      .status(200)
+      .send({ status: "Success", message: "user Deleted successfully" });
+  } catch (err) {
+    res.status(500).send({
+      status: "Failure",
+      message: "can not delete user from the server",
+    });
   }
 };
 
 exports.putUser = async (req, res) => {
   let data = req.body;
   let id = req.body.id;
-  let newpath ="";
+  let newpath = "";
   if (req.file) {
     newpath = req.file.path;
     newpath = newpath.slice(6, newpath.length);
@@ -248,8 +234,12 @@ exports.putUser = async (req, res) => {
         userProfile: newpath,
       }
     );
-    res.status(200).send({status:"Success", message: "User Updated Successfully" });
+    res
+      .status(200)
+      .send({ status: "Success", message: "User Updated Successfully" });
   } catch (err) {
-    res.status(500).send({status:"Failure", message: "can not update from server" });
+    res
+      .status(500)
+      .send({ status: "Failure", message: "can not update from server" });
   }
 };

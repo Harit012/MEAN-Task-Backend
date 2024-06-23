@@ -15,16 +15,6 @@ exports.getCountry = async (req, res) => {
 };
 
 exports.postCountry = async (req, res) => {
-  if (
-    !req.body.countryName ||
-    !req.body.currency ||
-    !req.body.countryCallCode ||
-    !req.body.FlagUrl ||
-    !req.body.timezones ||
-    !req.body.countryShortName
-  ) {
-    res.status(400).send("Please enter all the fields");
-  } else {
     try {
       const country = new countryModal({
         countryName: req.body.countryName,
@@ -59,5 +49,4 @@ exports.postCountry = async (req, res) => {
         .status(500)
         .send({ status: "Failure", message: "can not post country in server" });
     }
-  }
 };

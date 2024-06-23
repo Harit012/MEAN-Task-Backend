@@ -2,23 +2,24 @@ const express = require("express");
 const router = express.Router();
 const userController = require('../controller/user/userController');
 const cardController = require('../controller/user/cardController');
+const middlewares = require('../middlewares/user');
 
 //User routes
 
-router.get('/', userController.getUser);
+router.get('/',middlewares.getUsersParamsCheck, userController.getUser);
 
-router.post('/', userController.postUser);
+router.post('/',middlewares.postUsersParamsCheck, userController.postUser);
 
-router.put('/', userController.putUser);
+router.put('/',middlewares.putUserParamsCheck, userController.putUser);
 
-router.delete('/', userController.deleteUser);
+router.delete('/',middlewares.deleteUserParamsCheck,userController.deleteUser);
 
 // card routes
 
-router.post('/card', cardController.postCard);
+router.post('/card',middlewares.postCardParamsCheck, cardController.postCard);
 
-router.delete('/card', cardController.deletecard);
+router.delete('/card',middlewares.deleteCardParamsCheck, cardController.deletecard);
 
-router.post('/card/default', cardController.setDefault);
+router.post('/card/default',middlewares.defaultCardParamsCheck, cardController.setDefault);
 
 module.exports = router

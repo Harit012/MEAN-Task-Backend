@@ -28,7 +28,6 @@ const pipeline = [
 ];
 
 exports.getZone = async (req, res) => {
-  if (req.query.countryId) {
     const country = new ObjectId(req.query.countryId);
     try {
       const zone = await zoneModel.aggregate([
@@ -44,19 +43,9 @@ exports.getZone = async (req, res) => {
         message: "can not get City/Cities from server",
       });
     }
-  } else {
-    res
-      .status(400)
-      .send({ status: "Failure", message: "CountryId is not Provided." });
-  }
 };
 
 exports.postZone = async (req, res) => {
-  if (!req.body.country || !req.body.boundry || !req.body.zoneName) {
-    res
-      .status(400)
-      .send({ status: "Failure", message: "All the Fields are not Provided" });
-  } else {
     try {
       const zone = new zoneModel({
         boundry: req.body.boundry,
@@ -90,11 +79,10 @@ exports.postZone = async (req, res) => {
         });
       }
     }
-  }
 };
 
 exports.patchzone = async (req, res) => {
-  if (req.body.id && req.body.boundry ) {
+  // if (req.body.id && req.body.boundry ) {
     try {
       const updatedZone = await zoneModel.findOneAndUpdate(
         { _id: req.body.id },
@@ -112,12 +100,12 @@ exports.patchzone = async (req, res) => {
         .status(500)
         .send({ status: "Failure", error: "Cannot update zone in server" });
     }
-  } else {
-    res
-      .status(400)
-      .send({
-        status: "Failure",
-        message: "Provided Fields are not correct !!",
-      });
-  }
+  // } else {
+  //   res
+  //     .status(400)
+  //     .send({
+  //       status: "Failure",
+  //       message: "Provided Fields are not correct !!",
+  //     });
+  // }
 };

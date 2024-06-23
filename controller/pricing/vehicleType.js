@@ -21,31 +21,22 @@ const pipeline2 = [
 ];
 
 exports.postVehicle = async (req, res) => {
-  if (!req.file || !req.body.type) {
-    let file = req.file.path;
-    file = file.slice(9, file.length);
+  let file = req.file.path;
+  file = file.slice(6, file.length);
+  try {
+    const vehicle = new vehicleModel({
+      vehicleImage: file,
+      type: req.body.type,
+    });
+    await vehicle.save();
+    const vehicles = await vehicleModel.find();
+    res.status(201).send({ status: "Success", vehicles: vehicles });
+  } catch (err) {
+    console.log(file);
     fs.unlink(path.join(__dirname, `../../public/${file}`), (res) => {});
     res
-      .status(400)
-      .send({ status: "Failure", message: "Please enter all the fields" });
-  } else {
-    let file = req.file.path;
-    file = file.slice(6, file.length);
-    try {
-      const vehicle = new vehicleModel({
-        vehicleImage: file,
-        type: req.body.type,
-      });
-      await vehicle.save();
-      const vehicles = await vehicleModel.find();
-      res.status(201).send({ status: "Success", vehicles: vehicles });
-    } catch (err) {
-      console.log(file);
-      fs.unlink(path.join(__dirname, `../../public/${file}`), (res) => {});
-      res
-        .status(500)
-        .send({ status: "Failure", message: "can not post to server" });
-    }
+      .status(500)
+      .send({ status: "Failure", message: "can not post to server" });
   }
 };
 exports.getVehicle = async (req, res) => {
@@ -102,43 +93,35 @@ exports.deleteVehicle = async (req, res) => {
   }
 };
 exports.getTypesForPricing = async (req, res) => {
-  if (req.query.city) {
-    try {
-      let id = new ObjectId(req.query.city);
-      const vehicleTypes = await vehicleModel.aggregate([...pipeline1]);
-      const registeredPricing = await vehiclePricing.aggregate([
-        {
-          $match: {
-            city: id,
-          },
+  try {
+    let id = new ObjectId(req.query.city);
+    const vehicleTypes = await vehicleModel.aggregate([...pipeline1]);
+    const registeredPricing = await vehiclePricing.aggregate([
+      {
+        $match: {
+          city: id,
         },
-        ...pipeline2,
-      ]);
-      let onlyregisteredTypes = [];
-      let availableTypes = [];
-      registeredPricing.forEach((element) => {
-        onlyregisteredTypes.push(element.vehicleType);
-      });
-      for (let vehicleType of vehicleTypes) {
-        if (onlyregisteredTypes.includes(vehicleType.type)) {
-          continue;
-        } else {
-          availableTypes.push(vehicleType.type);
-        }
+      },
+      ...pipeline2,
+    ]);
+    let onlyregisteredTypes = [];
+    let availableTypes = [];
+    registeredPricing.forEach((element) => {
+      onlyregisteredTypes.push(element.vehicleType);
+    });
+    for (let vehicleType of vehicleTypes) {
+      if (onlyregisteredTypes.includes(vehicleType.type)) {
+        continue;
+      } else {
+        availableTypes.push(vehicleType.type);
       }
-      res.status(200).send({ status: "Success", availableTypes });
-    } catch (err) {
-      res
-        .status(500)
-        .send({
-          status: "Failure",
-          message: "can not get vehicle-Types from server",
-        });
     }
-  } else {
-    res
-      .status(400)
-      .send({ status: "Failure", message: "Please enter all the fields" });
+    res.status(200).send({ status: "Success", availableTypes });
+  } catch (err) {
+    res.status(500).send({
+      status: "Failure",
+      message: "can not get vehicle-Types from server",
+    });
   }
 };
 exports.getAllTypes = async (req, res) => {
@@ -150,11 +133,9 @@ exports.getAllTypes = async (req, res) => {
     });
     res.status(200).send({ status: "Success", allVehicleTypes });
   } catch (err) {
-    res
-      .status(500)
-      .send({
-        status: "Failure",
-        message: "can not get vehicle-Types from server",
-      });
+    res.status(500).send({
+      status: "Failure",
+      message: "can not get vehicle-Types from server",
+    });
   }
 };

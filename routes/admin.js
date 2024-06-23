@@ -1,12 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const userAuth = require("../controller/authentication/userAuth");
+const middlewares = require("../middlewares/login");
 
 const pricingRouter = require("./pricing");
 const userRouter = require(".//user");
 const driverRouter = require("./driver");
 const settingRouter = require("./settings");
 const multer = require("multer");
+
 
 const storage = multer.diskStorage({
   destination: `./public/images`,
@@ -16,7 +18,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-router.use("/", userAuth.getVerifiedUser);
+router.use("/", middlewares.verificationParamsCheck ,userAuth.getVerifiedUser);
 
 router.use("/pricing", upload.single("vehicleImage"), pricingRouter);
 

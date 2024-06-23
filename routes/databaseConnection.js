@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 
 
 router.use('',async function(req, res, next) {
-  let connectToAtlas = true
+  let connectToAtlas = false
   if(connectToAtlas){
     try {
       await mongoose.connect(process.env.CONNECTION_STRING);
@@ -16,7 +16,7 @@ router.use('',async function(req, res, next) {
     }
   }else{
     try {
-        await mongoose.connect("mongodb://localhost:27017/angularbackend");
+        await mongoose.connect("mongodb://localhost:27017/angularbackendTest");
         // // console.log("Compass connected");
         next();
       } catch (err) {
