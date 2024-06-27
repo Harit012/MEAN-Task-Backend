@@ -36,7 +36,7 @@ exports.deleteDriverParamsCheck = (req, res, next) => {
 };
 
 exports.patchDriverParamsCheck = (req, res, next) => {
-  if (req.body.id && req.body.approvel) {
+  if (req.body.id && typeof(req.body.approvel) == "boolean") {
     next();
   } else {
     res

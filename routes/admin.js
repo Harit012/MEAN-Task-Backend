@@ -7,6 +7,7 @@ const pricingRouter = require("./pricing");
 const userRouter = require(".//user");
 const driverRouter = require("./driver");
 const settingRouter = require("./settings");
+const ridesRoute = require("./ride");
 const multer = require("multer");
 
 
@@ -27,5 +28,7 @@ router.use("/users", upload.single("userProfile"), userRouter);
 router.use("/drivers", upload.single("driverProfile"), driverRouter);
 
 router.use("/settings", settingRouter);
+
+router.use("/rides", ridesRoute);
 
 module.exports = router;

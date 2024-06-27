@@ -95,8 +95,7 @@ exports.patchVehiclePricingParamsCheck = (req, res, next) => {
     req.body.basePrice &&
     req.body.pricePerUnitDistance &&
     req.body.pricePerUnitTime &&
-    req.body.maxSpace &&
-    req.body.ccv
+    req.body.maxSpace
   ) {
     next();
   } else {
@@ -119,27 +118,23 @@ exports.getZonesParamsCheck = (req, res, next) => {
   }
 };
 
-exports.postZoneParamsCheck = (req,res,next)=>{
-    if (req.body.country && req.body.boundry && req.body.zoneName) {
-        next();
-    }
-    else{
-        res
+exports.postZoneParamsCheck = (req, res, next) => {
+  if (req.body.country && req.body.boundry && req.body.zoneName) {
+    next();
+  } else {
+    res
       .status(400)
       .send({ status: "Failure", message: "All the Fields are not Provided" });
-    }
+  }
+};
 
-}
-
-exports.patchZoneParamsCheck = (req,res,next)=>{
-    if (req.body.id && req.body.boundry ) {
-        next();
-    }else{
-        res
-      .status(400)
-      .send({
-        status: "Failure",
-        message: "Provided Fields are not correct !!",
-      });
-    }
-}
+exports.patchZoneParamsCheck = (req, res, next) => {
+  if (req.body.id && req.body.boundry) {
+    next();
+  } else {
+    res.status(400).send({
+      status: "Failure",
+      message: "Provided Fields are not correct !!",
+    });
+  }
+};
