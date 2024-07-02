@@ -8,10 +8,10 @@ router.use('',async function(req, res, next) {
   if(connectToAtlas){
     try {
       await mongoose.connect(process.env.CONNECTION_STRING);
-      // console.log("Altlas connected");
+      // // console.log("Altlas connected");
       next();
     } catch (err) {
-      console.log("Connection failed with Database");
+      console.log("Connection failed with Database",err);
       res.status(500).send({status:"Failure",message:"Database not connected"})
     }
   }else{

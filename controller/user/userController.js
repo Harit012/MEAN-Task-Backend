@@ -154,7 +154,8 @@ exports.getUser = async (req, res) => {
         }
         break;
     }
-  } catch (err) {
+  } 
+  catch (err) {
     res
       .status(500)
       .send({ status: "Failure", message: "can not get user from server" });

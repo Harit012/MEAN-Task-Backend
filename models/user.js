@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true,
         match:/^[0-9]{10}$/,
-        unique:true
+        unique:true 
     },
     country:{
         type:mongoose.Schema.Types.ObjectId,

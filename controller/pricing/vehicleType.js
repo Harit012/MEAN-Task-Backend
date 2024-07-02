@@ -26,17 +26,23 @@ exports.postVehicle = async (req, res) => {
   try {
     const vehicle = new vehicleModel({
       vehicleImage: file,
-      type: req.body.type,
+      type: (req.body.type).toUpperCase(),
     });
     await vehicle.save();
     const vehicles = await vehicleModel.find();
     res.status(201).send({ status: "Success", vehicles: vehicles });
   } catch (err) {
-    console.log(file);
     fs.unlink(path.join(__dirname, `../../public/${file}`), (res) => {});
-    res
-      .status(500)
-      .send({ status: "Failure", message: "can not post to server" });
+
+    if (err.errorResponse.code === 11000) {
+      res
+        .status(409)
+        .send({ status: "Failure", message: "vehicle type Already Exists" });
+    }else{
+      res
+        .status(500)
+        .send({ status: "Failure", message: "can not post to server" });
+    }
   }
 };
 exports.getVehicle = async (req, res) => {
