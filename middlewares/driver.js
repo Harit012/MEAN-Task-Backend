@@ -73,3 +73,21 @@ exports.putDriverParamsCheck = (req, res, next) => {
       .send({ status: "Failure", message: "Please enter all the fields" });
   }
 };
+
+// Running Request 
+
+exports.patchAcceptRideParamsCheck = (req, res, next) => {
+  if(req.body.rideId){
+    next();
+  }else{
+    res.status(400).send({status:"Failure",message:"rideId is not Provided"});
+  }
+}
+
+exports.patchStatusChange = (req, res, next) => {
+  if(req.body.rideId && req.body.status){
+    next();
+  }else{
+    res.status(400).send({status:"Failure",message:"rideId or status is not Provided"});
+  }
+}

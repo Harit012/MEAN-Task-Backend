@@ -37,6 +37,10 @@ const driverSchema = new mongoose.Schema({
     serviceType:{
         type:String,
         default:"none",
+    },
+    isAvailable:{
+        type:Boolean,
+        default:true
     }
 });
 
