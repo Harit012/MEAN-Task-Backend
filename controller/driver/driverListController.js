@@ -35,6 +35,7 @@ const pipeline = [
       city: "$city.zoneName",
       approved: 1,
       serviceType: 1,
+      isAvailable: 1,
     },
   },
 ];

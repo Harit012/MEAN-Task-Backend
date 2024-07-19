@@ -127,6 +127,13 @@ exports.postCalculatePricing = async (req, res) => {
         },
         ...pipeline,
       ]);
+      if(pricings.length == 0){
+        res.status(404).send({
+          status: "Failure",
+          message: "selected city has no pricings",
+        })
+        return;
+      }
     } catch (err) {
       res
         .status(500)

@@ -15,6 +15,8 @@ router.post("/create-ride/create-ride",middlewares.postCreateRideParamsCheck,cre
 
 // Confirmed Rides
 
+router.get("/confirmed-ride/getAllDrivers",confirmRideController.getAllDrivers);
+
 router.get("/confirmed-ride/getRides",confirmRideController.getConfirmedRides)
 
 router.patch("/confirmed-ride/cancel-ride",middlewares.patchCancleRideParamsCheck,confirmRideController.patchCancleRide)

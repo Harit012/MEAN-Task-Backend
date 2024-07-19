@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const driverController = require("../controller/driver/driverListController");
-const runningRequestController = require("../controller/driver/running-reequestController")
+const runningRequestController = require("../controller/driver/running-requestController")
 const middlewares = require("../middlewares/driver");
 
 // driver-list routes
