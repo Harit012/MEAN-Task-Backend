@@ -5,6 +5,6 @@ exports.patchSettingsParamsCheck = (req,res,next)=>{
     else{
         res
         .status(400)
-        .send({ status: "Failure", error: "no request body recived" });
+        .send({ success: false, error: "no request body recived" });
     }
 }

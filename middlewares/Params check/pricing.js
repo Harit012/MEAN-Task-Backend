@@ -6,7 +6,7 @@ exports.postVehicleTypeParamsCheck = (req, res, next) => {
   } else {
     res
       .status(400)
-      .send({ status: "Failure", message: "Please enter all the fields" });
+      .send({ success: false, message: "Please enter all the fields" });
   }
 };
 
@@ -16,7 +16,7 @@ exports.putVehicleTypeParamsCheck = (req, res, next) => {
   } else {
     res
       .status(400)
-      .send({ status: "Failure", message: "Not all the fields are provided" });
+      .send({ success: false, message: "Not all the fields are provided" });
   }
 };
 
@@ -25,7 +25,7 @@ exports.deleteVehicleTypeParamsCheck = (req, res, next) => {
     next();
   } else {
     res.status(400).send({
-      status: "Failure",
+      success: false,
       message: "Id is not Provided",
     });
   }
@@ -37,7 +37,7 @@ exports.getTypesForPricingParamsCheck = (req, res, next) => {
   } else {
     res
       .status(400)
-      .send({ status: "Failure", message: "City Id Not Provided" });
+      .send({ success: false, message: "City Id Not Provided" });
   }
 };
 
@@ -55,7 +55,7 @@ exports.postCountryParamsCheck = (req, res, next) => {
     next();
   } else {
     res.status(400).send({
-      status: "Failure",
+      success: false,
       message: "Please enter all the fields",
     });
   }
@@ -80,7 +80,7 @@ exports.postVehiclePricingParamsCheck = (req, res, next) => {
     next();
   } else {
     res.status(400).send({
-      status: "Failure",
+      success: false,
       message: "Please enter all the fields",
     });
   }
@@ -100,7 +100,7 @@ exports.patchVehiclePricingParamsCheck = (req, res, next) => {
     next();
   } else {
     res.status(400).send({
-      status: "Failure",
+      success: false,
       message: "Please enter all the fields",
     });
   }
@@ -114,7 +114,7 @@ exports.getZonesParamsCheck = (req, res, next) => {
   } else {
     res
       .status(400)
-      .send({ status: "Failure", message: "CountryId is not Provided." });
+      .send({ success: false, message: "CountryId is not Provided." });
   }
 };
 
@@ -124,7 +124,7 @@ exports.postZoneParamsCheck = (req, res, next) => {
   } else {
     res
       .status(400)
-      .send({ status: "Failure", message: "All the Fields are not Provided" });
+      .send({ success: false, message: "All the Fields are not Provided" });
   }
 };
 
@@ -133,7 +133,7 @@ exports.patchZoneParamsCheck = (req, res, next) => {
     next();
   } else {
     res.status(400).send({
-      status: "Failure",
+      success: false,
       message: "Provided Fields are not correct !!",
     });
   }

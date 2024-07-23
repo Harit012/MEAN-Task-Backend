@@ -2,16 +2,16 @@ const SettingsModel = require("../../models/settings");
 const ObjectId = require("mongodb").ObjectId;
 
 exports.getSettings = async (req, res) => {
-  setTimeout(async () => {
+  // setTimeout(async () => {
     try {
       let setting = await SettingsModel.find();
-      res.send({ status: "Success", settings: setting[0] });
+      res.send({ success: true, settings: setting[0] });
     } catch (err) {
       res
         .status(500)
-        .send({ status: "Failure", error: "Cannot get settings from server" });
+        .send({ success: false, error: "Cannot get settings from server" });
     }
-  }, 2000);
+  // }, 2000);
 };
 
 exports.patchSettings = async (req, res) => {
@@ -25,12 +25,12 @@ exports.patchSettings = async (req, res) => {
       { timeOut: timeOut, stops: stops }
     );
     res.send({
-      status: "Success",
+      success: true,
       message: "Settings Updated Successfully",
     });
   } catch (err) {
     res.status(500).send({
-      status: "Failure",
+      success: false,
       error: "Cannot update settings on server",
     });
   }

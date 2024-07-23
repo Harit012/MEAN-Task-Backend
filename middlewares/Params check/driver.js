@@ -3,7 +3,7 @@ exports.getDriversParamsCheck = (req, res, next) => {
     next();
   } else {
     res.status(400).send({
-      status: "Failure",
+      success: false,
       message: "not all fields(page,sort,input) are Provided",
     });
   }
@@ -23,7 +23,7 @@ exports.postDriversParamsCheck = (req, res, next) => {
     console.log(req.body);
     res
       .status(400)
-      .send({ status: "Failure", message: "Please enter all the fields" });
+      .send({ success: false, message: "Please enter all the fields" });
   }
 };
 
@@ -31,7 +31,7 @@ exports.deleteDriverParamsCheck = (req, res, next) => {
   if (req.query.id) {
     next();
   } else {
-    res.status(400).send({ status: "Failure", message: "Id is not Provided" });
+    res.status(400).send({ success: false, message: "Id is not Provided" });
   }
 };
 
@@ -41,7 +41,7 @@ exports.patchDriverParamsCheck = (req, res, next) => {
   } else {
     res
       .status(400)
-      .send({ status: "Failure", message: "Id or Approvel is not Provided" });
+      .send({ success: false, message: "Id or Approvel is not Provided" });
   }
 };
 
@@ -50,7 +50,7 @@ exports.patchDriverServiceTypeParamsCheck = (req, res, next) => {
     next();
   } else {
     res.status(400).send({
-      status: "Failure",
+      success: false,
       message: "Id or ServiceType is not Provided",
     });
   }
@@ -70,7 +70,7 @@ exports.putDriverParamsCheck = (req, res, next) => {
   } else {
     res
       .status(400)
-      .send({ status: "Failure", message: "Please enter all the fields" });
+      .send({ success: false, message: "Please enter all the fields" });
   }
 };
 
@@ -80,7 +80,7 @@ exports.patchAcceptRideParamsCheck = (req, res, next) => {
   if(req.body.rideId){
     next();
   }else{
-    res.status(400).send({status:"Failure",message:"rideId is not Provided"});
+    res.status(400).send({success: false,message:"rideId is not Provided"});
   }
 }
 
@@ -88,6 +88,6 @@ exports.patchStatusChange = (req, res, next) => {
   if(req.body.rideId && req.body.status){
     next();
   }else{
-    res.status(400).send({status:"Failure",message:"rideId or status is not Provided"});
+    res.status(400).send({success: false,message:"rideId or status is not Provided"});
   }
 }

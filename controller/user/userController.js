@@ -43,7 +43,7 @@ exports.getUser = async (req, res) => {
             .aggregate([...pipeline])
             .skip(page * userPerPage)
             .limit(userPerPage);
-          res.status(200).send({ status: "Success", users: users });
+          res.status(200).send({ success: true, users: users });
         } else {
           const users = await userModel
             .aggregate([
@@ -60,7 +60,7 @@ exports.getUser = async (req, res) => {
             ])
             .skip(page * userPerPage)
             .limit(userPerPage);
-          res.status(200).send({ status: "Success", users: users });
+          res.status(200).send({ success: true, users: users });
         }
         break;
 
@@ -70,7 +70,7 @@ exports.getUser = async (req, res) => {
             .aggregate([...pipeline, { $sort: { userName: 1 } }])
             .skip(page * userPerPage)
             .limit(userPerPage);
-          res.status(200).send({ status: "Success", users: users });
+          res.status(200).send({ success: true, users: users });
         } else {
           const users = await userModel
             .aggregate([
@@ -100,7 +100,7 @@ exports.getUser = async (req, res) => {
             .aggregate([...pipeline, { $sort: { email: 1 } }])
             .skip(page * userPerPage)
             .limit(userPerPage);
-          res.status(200).send({ status: "Success", users: users });
+          res.status(200).send({ success: true, users: users });
         } else {
           const users = await userModel
             .aggregate([
@@ -130,7 +130,7 @@ exports.getUser = async (req, res) => {
             .aggregate([...pipeline, { $sort: { phone: 1 } }])
             .skip(page * userPerPage)
             .limit(userPerPage);
-          res.status(200).send({ status: "Success", users: users });
+          res.status(200).send({ success: true, users: users });
         } else {
           const users = await userModel
             .aggregate([
@@ -150,7 +150,7 @@ exports.getUser = async (req, res) => {
             ])
             .skip(page * userPerPage)
             .limit(userPerPage);
-          res.status(200).send({ status: "Success", users: users });
+          res.status(200).send({ success: true, users: users });
         }
         break;
     }
@@ -158,7 +158,7 @@ exports.getUser = async (req, res) => {
   catch (err) {
     res
       .status(500)
-      .send({ status: "Failure", message: "can not get user from server" });
+      .send({ success: false, message: "can not get user from server" });
   }
 };
 
@@ -179,12 +179,12 @@ exports.postUser = async (req, res) => {
       userProfile: file,
     });
     await newUser.save();
-    res.status(200).send({ status: "Success", user: newUser });
+    res.status(200).send({ success: true, user: newUser });
   } catch (err) {
     fs.unlink(path.join(__dirname, `../../public/${file}`), (res) => {});
     res
       .status(500)
-      .send({ status: "Failure", message: "can not Add user in Servere" });
+      .send({ success: false, message: "can not Add user in Servere" });
   }
 };
 
@@ -201,10 +201,10 @@ exports.deleteUser = async (req, res) => {
     );
     res
       .status(200)
-      .send({ status: "Success", message: "user Deleted successfully" });
+      .send({ success: true, message: "user Deleted successfully" });
   } catch (err) {
     res.status(500).send({
-      status: "Failure",
+      success: false,
       message: "can not delete user from the server",
     });
   }
@@ -237,10 +237,10 @@ exports.putUser = async (req, res) => {
     );
     res
       .status(200)
-      .send({ status: "Success", message: "User Updated Successfully" });
+      .send({ success: true, message: "User Updated Successfully" });
   } catch (err) {
     res
       .status(500)
-      .send({ status: "Failure", message: "can not update from server" });
+      .send({ success: false, message: "can not update from server" });
   }
 };

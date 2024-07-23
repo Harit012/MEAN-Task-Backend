@@ -45,9 +45,9 @@ const pipeline = [
 exports.getVehiclePricing = async (req, res) => {
   try {
     let data = await vehiclePricing.aggregate([...pipeline]);
-    res.status(200).send({status:"Success", vehiclePricing: data });
+    res.status(200).send({success:true, vehiclePricing: data });
   } catch (err) {
-    res.status(500).send({status:"Failure", message: "can not get vehicle-pricing from server" });
+    res.status(500).send({success: false, message: "can not get vehicle-pricing from server" });
   }
 };
 
@@ -61,9 +61,9 @@ exports.postVehiclePricing = async (req, res) => {
       { $match: { _id: id } },
       ...pipeline,
     ]);
-    res.status(200).send({status:"Success", vehiclePricing: output[0] });
+    res.status(200).send({success: true, vehiclePricing: output[0] });
   } catch (err) {
-    res.status(500).send({status:"Failure", message: "can not add vehicle-pricing in server" });
+    res.status(500).send({success: false, message: "can not add vehicle-pricing in server" });
   }
 };
 
@@ -75,8 +75,8 @@ exports.patchVehiclePricing = async (req, res) => {
       { $match: { _id: id } },
       ...pipeline,
     ]);
-    res.status(200).send({status:"Success", vehiclePricing: output[0] });
+    res.status(200).send({success: true, vehiclePricing: output[0] });
   } catch (err) {
-    res.status(500).send({status:"Failure", message: "can not update vehicle-pricing in server" });
+    res.status(500).send({success: false, message: "can not update vehicle-pricing in server" });
   }
 };

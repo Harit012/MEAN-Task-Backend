@@ -1,7 +1,8 @@
 let express = require("express");
 let userAuth = require("../controller/authentication/userAuth");
 let router = express.Router();
-let middlewares = require("../middlewares/login");
+let middlewares = require("../middlewares/Params check/login");
+let {validate, userLoginValidationRules} = require("../middlewares/Field validators/login")
 
 router.get("/test", (req, res) => {
   console.log(`FrontEnd Connected`);
@@ -11,6 +12,6 @@ router.get("/test", (req, res) => {
   })
 });
 
-router.post("/login", middlewares.loginParamsCheck, userAuth.postLoginUser);
+router.post("/login", middlewares.loginParamsCheck,userLoginValidationRules(),validate, userAuth.postLoginUser);
 
 module.exports = router;

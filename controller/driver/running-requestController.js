@@ -78,11 +78,11 @@ exports.getRunningRequest = async (req, res) => {
         }
       }
     ]);
-    res.status(200).send({ status: "Success", acceptedRides: acceptedRides , newRides : newRides});
+    res.status(200).send({ success: true, acceptedRides: acceptedRides , newRides : newRides});
   } catch (err) {
     console.log(err);
     res.status(500).send({
-      status: "Failure",
+      success: false,
       message: "can not get running request from server",
     });
   }
@@ -100,14 +100,14 @@ exports.patchAcceptRide = async (req, res) => {
       { $match: { _id: ride._id } },
       ...pipeline,
     ]);
-    res.status(200).send({ status: "Success", ride: rideTOsend[0] });
+    res.status(200).send({ success: true, ride: rideTOsend[0] });
     // socket
     let io = req.app.get("socketio");
     io.emit("acceptRideFromServer", rideTOsend[0]);
   } catch (err) {
     res
       .status(500)
-      .send({ status: "Failure", message: "can not accept ride from server" });
+      .send({ success: false, message: "can not accept ride from server" });
   }
 };
 
@@ -123,14 +123,14 @@ exports.patchStatusChange = async (req, res, next) => {
       ...pipeline,
     ]);
     console.log(ride);
-    res.status(200).send({ status: "Success", ride: ride[0] });
+    res.status(200).send({ success: true, ride: ride[0] });
     // socket
     let io = req.app.get("socketio");
     io.emit("changeStatusFromServer", ride[0]);
   } catch (err) {
     console.log(err);
     res.status(500).send({
-      status: "Failure",
+      success: false,
       message: "can not change status from server",
     });
   }

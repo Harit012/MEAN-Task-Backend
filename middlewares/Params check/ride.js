@@ -4,17 +4,7 @@ exports.postVerifyUserParamsCheck = (req, res, next) => {
   } else {
     res
       .status(400)
-      .send({ status: "Failure", message: "Phone is not Provided" });
-  }
-};
-
-exports.getPricingsForCityParamsCheck = (req, res, next) => {
-  if (req.query.city) {
-    next();
-  } else {
-    res
-      .status(400)
-      .send({ status: "Failure", message: "City is not Provided" });
+      .send({ success: false, message: "Phone is not Provided" });
   }
 };
 
@@ -23,7 +13,7 @@ exports.calculatePricingsParamsCheck = (req, res, next) => {
     next();
   } else {
     res.status(400).send({
-      status: "Failure",
+      success: false,
       message: "(time, distance, zoneId) are not Provided",
     });
   }
@@ -31,6 +21,7 @@ exports.calculatePricingsParamsCheck = (req, res, next) => {
 
 exports.postCreateRideParamsCheck = (req, res, next) => {
   if (
+    req.body.userId &&
     req.body.destination &&
     req.body.distance &&
     req.body.paymentmethod &&
@@ -42,12 +33,15 @@ exports.postCreateRideParamsCheck = (req, res, next) => {
     req.body.time &&
     req.body.useremail &&
     req.body.username &&
-    req.body.userphone
+    req.body.userphone &&
+    req.body.endPonts &&
+    req.body.stopPoints &&
+    req.body.sourceCity
   ) {
     next();
   } else {
     res.status(400).send({
-      status: "Failure",
+      success: false,
       message: "Not all fields are provided",
     });
   }
@@ -59,18 +53,30 @@ exports.patchCancleRideParamsCheck = (req, res, next) => {
     next();
   } else {
     res.status(400).send({
-      status : "Failure",
+      success: false,
       message: "rideId is not Provided",
     })
   }
 };
 // assign Driver 
+
+exports.getAllDriversParamsCheck = (req,res,next)=>{
+  if(req.query.cityId && req.query.serviceType ){
+    next();
+  }else{
+    res.status(400).send({
+      success: false,
+      message: "cityId or serviceType is not Provided",
+    })
+  }
+}
+
 exports.patchAsssignDriverParamsCheck = (req,res,next)=>{
   if(req.body.rideId && req.body.driverId){
     next();
   }else{
     res.status(400).send({
-      status : "Failure",
+      success: false,
       message: "rideId or driverId is not Provided",
     })
   }

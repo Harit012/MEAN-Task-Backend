@@ -1,12 +1,14 @@
 const rideModel = require("../../models/ride");
 const driverModel = require("../../models/driver");
+const { ObjectId } = require("mongodb");
+// const { default: mongoose } = require("mongoose");
 
 const pipeline = [
   {
     $facet: {
       withDriverId: [
         {
-          $match: { driverId: { $exists: true } }
+          $match: { driverId: { $exists: true } },
         },
         {
           $lookup: {
@@ -64,15 +66,16 @@ const pipeline = [
             endPoints: 1,
             stopPoints: 1,
             driverName: "$driver.driverName",
+            sourceCity:1,
           },
         },
         {
-          $sort: { statusOrder: 1 }
-        }
+          $sort: { statusOrder: 1 },
+        },
       ],
       withoutDriverId: [
         {
-          $match: { driverId: { $exists: false } }
+          $match: { driverId: { $exists: false } },
         },
         {
           $lookup: {
@@ -121,55 +124,68 @@ const pipeline = [
             endPoints: 1,
             stopPoints: 1,
             driverName: null,
+            sourceCity:1,
           },
         },
         {
-          $sort: { statusOrder: 1 }
-        }
-      ]
-    }
+          $sort: { statusOrder: 1 },
+        },
+      ],
+    },
   },
   {
     $project: {
-      combined: { $concatArrays: [ "$withoutDriverId" , "$withDriverId"] }
-    }
+      combined: { $concatArrays: ["$withoutDriverId", "$withDriverId"] },
+    },
   },
   {
-    $unwind: "$combined"
+    $unwind: "$combined",
   },
   {
-    $replaceRoot: { newRoot: "$combined" }
-  }
+    $replaceRoot: { newRoot: "$combined" },
+  },
 ];
 
 exports.getAllDrivers = async (req, res) => {
-  try{
+  let sourceCity = req.query.cityId;
+  let serviceType = req.query.serviceType;
+  try {
     let drivers = await driverModel.aggregate([
       {
-        $project:{
-          _id:1,
-          driverName:1,
-          phone:1,
-          serviceType:1,
-          isAvailable:1,
-          approved:1,
-          country:1,
-          driverProfile:1,
-          driverEmail:1
-        }
-      }
+        $match: {
+          $and: [
+            { city: new ObjectId(sourceCity) },
+            { serviceType: serviceType },
+            { isAvailable: true },
+            { approved: true }
+          ],
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          driverName: 1,
+          phone: 1,
+          serviceType: 1,
+          isAvailable: 1,
+          approved: 1,
+          country: 1,
+          driverProfile: 1,
+          driverEmail: 1,
+        },
+      },
     ]);
     res.status(200).send({
-      status: "Success",
-      driversList: drivers
-    })
-  }catch(err){
+      success: true,
+      driversList: drivers,
+    });
+  } catch (err) {
     res.status(500).send({
-      status: "Failure",
+      success: false,
       message: "can not get drivers from server",
-    })
+    });
   }
-}
+};
 
 exports.getConfirmedRides = async (req, res) => {
   try {
@@ -181,13 +197,12 @@ exports.getConfirmedRides = async (req, res) => {
       },
       ...pipeline,
     ]);
-    setTimeout(() => {
-      
-      res.status(200).send({ status: "Success", rides: rides });
-    },2000);
+    // setTimeout(() => {
+      res.status(200).send({ success: true, rides: rides });
+    // }, 2000);
   } catch (err) {
     res.status(500).send({
-      status: "Failure",
+      success: false,
       message: "can not get confirmed rides from server",
     });
   }
@@ -201,13 +216,13 @@ exports.patchCancleRide = async (req, res) => {
       { status: "cancelled" },
       { new: true }
     );
-    res.status(200).send({ status: "Success", message: "ride cancelled" });
+    res.status(200).send({ success: true, message: "ride cancelled" });
     let io = req.app.get("socketio");
     io.emit("cancelRide", ride._id);
   } catch (err) {
     res
       .status(500)
-      .send({ status: "Failure", message: "can not cancel ride from server" });
+      .send({ success: false, message: "can not cancel ride from server" });
   }
 };
 
@@ -225,10 +240,10 @@ exports.patchAssingDriver = async (req, res) => {
     ]);
     let io = req.app.get("socketio");
     io.emit("assignRideFromServer", ride[0]);
-    res.status(200).send({ status: "Success", ride: ride[0] });
+    res.status(200).send({ success: true, ride: ride[0] });
   } catch (err) {
     res.status(500).send({
-      status: "Failure",
+      success: false,
       message: "can not assign driver from server",
     });
   }

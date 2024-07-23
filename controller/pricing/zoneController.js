@@ -36,10 +36,10 @@ exports.getZone = async (req, res) => {
         },
         ...pipeline,
       ]);
-      res.status(200).send({ status: "Success", zones: zone });
+      res.status(200).send({ success: true, zones: zone });
     } catch (err) {
       res.status(500).send({
-        status: "Failure",
+        success: false,
         message: "can not get City/Cities from server",
       });
     }
@@ -65,16 +65,16 @@ exports.postZone = async (req, res) => {
         { $match: { country: country } },
         ...pipeline,
       ]);
-      res.send({ status: "Success", zones: zones });
+      res.send({ success: true, zones: zones });
     } catch (err) {
       if (err.errorResponse == 11000) {
-        res.status(11000).send({
-          status: "Failure",
+        res.status(409).send({
+          success: false,
           message: `zone at ${req.body.zoneName} already exists`,
         });
       } else {
         res.status(500).send({
-          status: "Failure",
+          success: false,
           message: "can not Add City/Zone in server",
         });
       }
@@ -94,11 +94,11 @@ exports.patchzone = async (req, res) => {
         { $match: { _id: id } },
         ...pipeline,
       ]);
-      res.status(200).send({ status: "Success", zone: fatchedUpdatedZone[0] });
+      res.status(200).send({ success: true, zone: fatchedUpdatedZone[0] });
     } catch (err) {
       res
         .status(500)
-        .send({ status: "Failure", error: "Cannot update zone in server" });
+        .send({ success: false, error: "Cannot update zone in server" });
     }
   // } else {
   //   res

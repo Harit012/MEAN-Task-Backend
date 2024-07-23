@@ -4,7 +4,7 @@ exports.loginParamsCheck = (req, res, next) => {
     next();
   } else {
     res.status(400).send({
-      status: "Failure",
+      success: false,
       message: "Email or Password not Provided",
     });
   }
@@ -15,7 +15,7 @@ exports.verificationParamsCheck = (req, res, next) => {
     next();
   } else {
     res.status(401).send({
-      status: "Failure",
+      success:false,
       message: "User has not valid token",
     });
   }

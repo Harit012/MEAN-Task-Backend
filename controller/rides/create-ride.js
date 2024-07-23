@@ -6,6 +6,7 @@ const rideModel = require("./../../models/ride");
 const crypto = require("crypto");
 const { patchzone } = require("../pricing/zoneController");
 const { default: mongoose } = require("mongoose");
+const { body, validationResult } = require('express-validator');
 
 const pipeline = [
   {
@@ -51,7 +52,8 @@ const pipeline2 = [
       userProfile: '$user.userProfile',
       status:1,
       endPoints:1,
-      stopPoints:1
+      stopPoints:1,
+      sourceCity:1,
     },
   },
 ];
@@ -62,7 +64,7 @@ exports.postVerifyUserwithPhone = async (req, res) => {
     let reqphone = req.body.phone;
     // console.log(phone)
     let user = await userModel.aggregate([
-      { $match: { phone: { $regex: reqphone } } },
+      { $match: { phone: reqphone } },
       {
         $lookup: {
           from: "countries",
@@ -86,6 +88,10 @@ exports.postVerifyUserwithPhone = async (req, res) => {
         },
       },
     ]);
+    if(user.length == 0){
+      res.status(404).send({ status: "Failure", message: "User Not Found" });
+      return;
+    }
     res.status(200).send({ status: "Success", user: user[0] });
   } catch (err) {
     console.log(err);
@@ -93,23 +99,6 @@ exports.postVerifyUserwithPhone = async (req, res) => {
   }
 };
 
-exports.getPricingsForCity = async (req, res) => {
-  try {
-    let city = new req.query.city();
-    let pricings = await vehiclePricingModel.aggregate([
-      {
-        $match: {
-          city: new ObjectId(city),
-        },
-      },
-      ...pipeline,
-    ]);
-
-    res.status(200).send({ status: "Success", pricings: pricings });
-  } catch (err) {
-    res.status(500).send({ status: "Failure", message: "Error From Server" });
-  }
-};
 
 exports.postCalculatePricing = async (req, res) => {
   try {
@@ -211,6 +200,7 @@ exports.postCreateRide = async (req, res) => {
       rideType: req.body.rideType,
       endPoints: req.body.endPoints,
       stopPoints: req.body.stopPoints,
+      sourceCity: req.body.sourceCity,
     });
     
     let outputRide = await rideModel.aggregate([
@@ -221,8 +211,6 @@ exports.postCreateRide = async (req, res) => {
       },
       ...pipeline2
     ]);
-    console.log(outputRide);
-    console.log(ride);
     const io = req.app.get("socketio");
     io.emit("newRide", outputRide[0]);
     res

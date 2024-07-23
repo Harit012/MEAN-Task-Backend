@@ -30,29 +30,29 @@ exports.postVehicle = async (req, res) => {
     });
     await vehicle.save();
     const vehicles = await vehicleModel.find();
-    res.status(201).send({ status: "Success", vehicles: vehicles });
+    res.status(201).send({ success: true, vehicles: vehicles });
   } catch (err) {
     fs.unlink(path.join(__dirname, `../../public/${file}`), (res) => {});
 
     if (err.errorResponse.code === 11000) {
       res
         .status(409)
-        .send({ status: "Failure", message: "vehicle type Already Exists" });
+        .send({ success: false, message: "vehicle type Already Exists" });
     }else{
       res
         .status(500)
-        .send({ status: "Failure", message: "can not post to server" });
+        .send({ success: false, message: "can not post to server" });
     }
   }
 };
 exports.getVehicle = async (req, res) => {
   try {
     const vehicle = await vehicleModel.find();
-    res.status(200).send({ status: "Success", vehicle: vehicle });
+    res.status(200).send({ success: true, vehicle: vehicle });
   } catch (err) {
     res
       .status(500)
-      .send({ status: "Failure", message: "can not get vehicles from server" });
+      .send({ success: false, message: "can not get vehicles from server" });
   }
 };
 exports.putVehicle = async (req, res) => {
@@ -76,18 +76,18 @@ exports.putVehicle = async (req, res) => {
       }
     );
     const vehicles = await vehicleModel.find();
-    res.status(200).send({ status: "Success", vehicles: vehicles });
+    res.status(200).send({ success: true, vehicles: vehicles });
   } catch (err) {
     res
       .status(500)
-      .send({ status: "Failure", message: "can not get vehicles from server" });
+      .send({ success: false, message: "can not get vehicles from server" });
   }
 };
 exports.deleteVehicle = async (req, res) => {
   try {
     const vehicle = await vehicleModel.findByIdAndDelete(req.query.id);
     const vehicles = await vehicleModel.find();
-    res.status(200).send({ status: "Success", vehicles: vehicles });
+    res.status(200).send({ success: true, vehicles: vehicles });
     fs.unlink(
       path.join(__dirname, `../../public/${vehicle.vehicleImage}`),
       (res) => {}
@@ -95,7 +95,7 @@ exports.deleteVehicle = async (req, res) => {
   } catch (err) {
     res
       .status(500)
-      .send({ status: "Failure", message: "can not get vehicles from server" });
+      .send({ success: false, message: "can not get vehicles from server" });
   }
 };
 exports.getTypesForPricing = async (req, res) => {
@@ -122,10 +122,10 @@ exports.getTypesForPricing = async (req, res) => {
         availableTypes.push(vehicleType.type);
       }
     }
-    res.status(200).send({ status: "Success", availableTypes });
+    res.status(200).send({ success: true, availableTypes });
   } catch (err) {
     res.status(500).send({
-      status: "Failure",
+      success: false,
       message: "can not get vehicle-Types from server",
     });
   }
@@ -137,10 +137,10 @@ exports.getAllTypes = async (req, res) => {
     vehicleTypes.forEach((element) => {
       allVehicleTypes.push(element.type);
     });
-    res.status(200).send({ status: "Success", allVehicleTypes });
+    res.status(200).send({ success: true, allVehicleTypes });
   } catch (err) {
     res.status(500).send({
-      status: "Failure",
+      success: false,
       message: "can not get vehicle-Types from server",
     });
   }

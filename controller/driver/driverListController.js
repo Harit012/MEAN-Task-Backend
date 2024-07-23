@@ -52,7 +52,7 @@ exports.getDrivers = async (req, res) => {
             .aggregate([...pipeline])
             .skip(page * driversPerPage)
             .limit(driversPerPage);
-          res.status(200).send({ status: "Success", drivers: drivers });
+          res.status(200).send({ success: true, drivers: drivers });
         } else {
           const drivers = await driverModel
             .aggregate([
@@ -71,7 +71,7 @@ exports.getDrivers = async (req, res) => {
             .limit(driversPerPage);
           console.log(drivers);
 
-          res.status(200).send({ status: "Success", drivers: drivers });
+          res.status(200).send({ success: true, drivers: drivers });
         }
         break;
 
@@ -81,7 +81,7 @@ exports.getDrivers = async (req, res) => {
             .aggregate([...pipeline, { $sort: { driverName: 1 } }])
             .skip(page * driversPerPage)
             .limit(driversPerPage);
-          res.status(200).send({ status: "Success", drivers: drivers });
+          res.status(200).send({ success: true, drivers: drivers });
         } else {
           const drivers = await driverModel
             .aggregate([
@@ -99,7 +99,7 @@ exports.getDrivers = async (req, res) => {
             ])
             .skip(page * driversPerPage)
             .limit(driversPerPage);
-          res.status(200).send({ status: "Success", drivers: drivers });
+          res.status(200).send({ success: true, drivers: drivers });
         }
         break;
 
@@ -109,7 +109,7 @@ exports.getDrivers = async (req, res) => {
             .aggregate([...pipeline, { $sort: { driverEmail: 1 } }])
             .skip(page * driversPerPage)
             .limit(driversPerPage);
-          res.status(200).send({ status: "Success", drivers: drivers });
+          res.status(200).send({ success: true, drivers: drivers });
         } else {
           const drivers = await driverModel
             .aggregate([
@@ -127,7 +127,7 @@ exports.getDrivers = async (req, res) => {
             ])
             .skip(page * driversPerPage)
             .limit(driversPerPage);
-          res.res.status(200).send({ status: "Success", drivers: drivers });
+          res.res.status(200).send({ success: true, drivers: drivers });
         }
         break;
 
@@ -137,7 +137,7 @@ exports.getDrivers = async (req, res) => {
             .aggregate([...pipeline, { $sort: { phone: 1 } }])
             .skip(page * driversPerPage)
             .limit(driversPerPage);
-          res.status(200).send({ status: "Success", drivers: drivers });
+          res.status(200).send({ success: true, drivers: drivers });
         } else {
           const drivers = await driverModel
             .aggregate([
@@ -155,13 +155,13 @@ exports.getDrivers = async (req, res) => {
             ])
             .skip(page * driversPerPage)
             .limit(driversPerPage);
-          res.status(200).send({ status: "Success", drivers: drivers });
+          res.status(200).send({ success: true, drivers: drivers });
         }
         break;
     }
   } catch (err) {
     res.status(500).send({
-      status: "Failure",
+      success: false,
       message: "can not get drivers from server",
     });
   }

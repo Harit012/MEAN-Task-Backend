@@ -3,7 +3,7 @@ exports.getUsersParamsCheck = (req, res, next) => {
     next();
   } else {
     res.status(400).send({
-      status: "Failure",
+      success: false,
       message: "not all fields(page,sort,input) are Provided",
     });
   }
@@ -21,7 +21,7 @@ exports.postUsersParamsCheck = (req, res, next) => {
   } else {
     res
       .status(400)
-      .send({ status: "Failure", message: "Not all fields are provided." });
+      .send({ success: false, message: "Not all fields are provided." });
   }
 };
 
@@ -30,7 +30,7 @@ exports.deleteUserParamsCheck = (req, res, next) => {
     next();
   } else {
     res.status(400).send({
-      status: "Failure",
+      success: false,
       message: "Id or customerId are not Provided",
     });
   }
@@ -38,6 +38,7 @@ exports.deleteUserParamsCheck = (req, res, next) => {
 
 exports.putUserParamsCheck = (req, res, next) => {
   if (
+    req.body.id &&
     req.body.userName &&
     req.body.email &&
     req.body.country &&
@@ -48,7 +49,7 @@ exports.putUserParamsCheck = (req, res, next) => {
   } else {
     res
       .status(400)
-      .send({ status: "Failure", message: "Not all fields are provided." });
+      .send({ success: false, message: "Not all fields are provided." });
   }
 };
 
@@ -59,7 +60,7 @@ exports.postCardParamsCheck = (req, res, next) => {
     next();
   } else {
     res.status(400).send({
-      status: "Failure",
+      success: false,
       message: "cardId or token is not Provided",
     });
   }
@@ -70,7 +71,7 @@ exports.deleteCardParamsCheck = (req, res, next) => {
     next();
   } else {
     res.status(400).send({
-      status: "Failure",
+      success: false,
       message: "cardId or customerId are not Provided",
     });
   }
@@ -81,7 +82,7 @@ exports.defaultCardParamsCheck = (req, res, next) => {
     next();
   } else {
     res.status(400).send({
-      status: "Failure",
+      success: false,
       message: "cardId or customerId are not Provided",
     });
   }

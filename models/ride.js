@@ -80,6 +80,11 @@ const rideSchema = new mongoose.Schema({
     stopPoints:{
         type:[Object],
         required:true
+    },
+    sourceCity:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"zone",
+        required:true
     }
 })
 

@@ -3,10 +3,10 @@ const countryModal = require("../../models/country");
 exports.getCountry = async (req, res) => {
   try {
     const countries = await countryModal.find();
-    res.status(200).send({ status: "Success", countries: countries });
+    res.status(200).send({ success: true, countries: countries });
   } catch (err) {
     res.status(500).send({
-      status: "Failure",
+      success: false,
       message: "can not get countries from server",
     });
   }
@@ -24,7 +24,7 @@ exports.postCountry = async (req, res) => {
       countryShortName: req.body.countryShortName,
     });
     await country.save();
-    res.status(200).send({ status: "Success", country: country });
+    res.status(200).send({ success: true, country: country });
   } catch (err) {
     console.log(err);
     console.log(err.errorResponse.code);
@@ -32,11 +32,11 @@ exports.postCountry = async (req, res) => {
     if (err.errorResponse.code === 11000) {
       res
         .status(409)
-        .send({ status: "Failure", message: "Country Already Exists" });
+        .send({ success: false, message: "Country Already Exists" });
     } else {
       console.log(err.errorResponse.code);
       res.status(500).send({
-        status: "Failure",
+        success: false,
         message: "can not post country in server",
       });
     }
