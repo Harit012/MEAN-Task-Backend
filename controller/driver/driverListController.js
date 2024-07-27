@@ -1,5 +1,6 @@
 const driverModel = require("../../models/driver");
 const fs = require("fs");
+const { BlockList } = require("net");
 const path = require("path");
 
 const driversPerPage = 10;
@@ -52,7 +53,13 @@ exports.getDrivers = async (req, res) => {
             .aggregate([...pipeline])
             .skip(page * driversPerPage)
             .limit(driversPerPage);
-          res.status(200).send({ success: true, drivers: drivers });
+          if (drivers.length == 0) {
+            res
+              .status(404)
+              .send({ success: false, message: "No Drivers Found" });
+          } else {
+            res.status(200).send({ success: true, drivers: drivers });
+          }
         } else {
           const drivers = await driverModel
             .aggregate([
@@ -69,9 +76,14 @@ exports.getDrivers = async (req, res) => {
             ])
             .skip(page * driversPerPage)
             .limit(driversPerPage);
-          console.log(drivers);
 
-          res.status(200).send({ success: true, drivers: drivers });
+          if (drivers.length == 0) {
+            res
+              .status(404)
+              .send({ success: false, message: "No Drivers Found" });
+          } else {
+            res.status(200).send({ success: true, drivers: drivers });
+          }
         }
         break;
 
@@ -81,7 +93,13 @@ exports.getDrivers = async (req, res) => {
             .aggregate([...pipeline, { $sort: { driverName: 1 } }])
             .skip(page * driversPerPage)
             .limit(driversPerPage);
-          res.status(200).send({ success: true, drivers: drivers });
+          if (drivers.length == 0) {
+            res
+              .status(404)
+              .send({ success: false, message: "No Drivers Found" });
+          } else {
+            res.status(200).send({ success: true, drivers: drivers });
+          }
         } else {
           const drivers = await driverModel
             .aggregate([
@@ -99,7 +117,13 @@ exports.getDrivers = async (req, res) => {
             ])
             .skip(page * driversPerPage)
             .limit(driversPerPage);
-          res.status(200).send({ success: true, drivers: drivers });
+          if (drivers.length == 0) {
+            res
+              .status(404)
+              .send({ success: false, message: "No Drivers Found" });
+          } else {
+            res.status(200).send({ success: true, drivers: drivers });
+          }
         }
         break;
 
@@ -109,7 +133,13 @@ exports.getDrivers = async (req, res) => {
             .aggregate([...pipeline, { $sort: { driverEmail: 1 } }])
             .skip(page * driversPerPage)
             .limit(driversPerPage);
-          res.status(200).send({ success: true, drivers: drivers });
+          if (drivers.length == 0) {
+            res
+              .status(404)
+              .send({ success: false, message: "No Drivers Found" });
+          } else {
+            res.status(200).send({ success: true, drivers: drivers });
+          }
         } else {
           const drivers = await driverModel
             .aggregate([
@@ -127,7 +157,13 @@ exports.getDrivers = async (req, res) => {
             ])
             .skip(page * driversPerPage)
             .limit(driversPerPage);
-          res.res.status(200).send({ success: true, drivers: drivers });
+          if (drivers.length == 0) {
+            res
+              .status(404)
+              .send({ success: false, message: "No Drivers Found" });
+          } else {
+            res.status(200).send({ success: true, drivers: drivers });
+          }
         }
         break;
 
@@ -137,7 +173,13 @@ exports.getDrivers = async (req, res) => {
             .aggregate([...pipeline, { $sort: { phone: 1 } }])
             .skip(page * driversPerPage)
             .limit(driversPerPage);
-          res.status(200).send({ success: true, drivers: drivers });
+          if (drivers.length == 0) {
+            res
+              .status(404)
+              .send({ success: false, message: "No Drivers Found" });
+          } else {
+            res.status(200).send({ success: true, drivers: drivers });
+          }
         } else {
           const drivers = await driverModel
             .aggregate([
@@ -155,7 +197,13 @@ exports.getDrivers = async (req, res) => {
             ])
             .skip(page * driversPerPage)
             .limit(driversPerPage);
-          res.status(200).send({ success: true, drivers: drivers });
+          if (drivers.length == 0) {
+            res
+              .status(404)
+              .send({ success: false, message: "No Drivers Found" });
+          } else {
+            res.status(200).send({ success: true, drivers: drivers });
+          }
         }
         break;
     }
@@ -201,10 +249,10 @@ exports.deleteDriver = async (req, res) => {
     );
     res
       .status(200)
-      .send({ status: "Success", message: "Driver Deleted successfully" });
+      .send({ success: true, message: "Driver Deleted successfully" });
   } catch (err) {
     res.status(500).send({
-      status: "Failure",
+      success: false,
       message: "can not delete driver from the server",
     });
   }
@@ -218,12 +266,12 @@ exports.patchDriver = async (req, res) => {
       approved: approvelStatus,
     });
     res.status(200).send({
-      status: "Success",
+      success: true,
       message: "Driver Approvel updated successfully",
     });
   } catch (err) {
     res.status(500).send({
-      status: "Failure",
+      success: false,
       message: "can not update driver from the server",
     });
   }
@@ -255,9 +303,9 @@ exports.putDriver = async (req, res) => {
       }
     );
 
-    res.status(200).send({ status: "Success", message: "User  Updated !" });
+    res.status(200).send({ success: true, message: "User  Updated !" });
   } catch (err) {
-    res.status(500).send({ status: "Failure", error: err.message });
+    res.status(500).send({ success: false, error: err.message });
   }
 };
 
@@ -269,11 +317,13 @@ exports.patchServiceType = async (req, res) => {
         serviceType: req.body.serviceType,
       }
     );
-    res.status(200).send({ status: "Success", message: "ServiceType Updated" });
+    res.status(200).send({ success: true, message: "ServiceType Updated" });
   } catch (err) {
     res.status(500).send({
-      status: "Failure",
+      success: false,
       message: "can not update serviceType from the server",
     });
   }
 };
+
+

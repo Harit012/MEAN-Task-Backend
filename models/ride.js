@@ -85,6 +85,12 @@ const rideSchema = new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:"zone",
         required:true
+    },
+    blockList:{
+        type:[String],
+        ref:"driver",
+        required:false,
+        default:[]
     }
 })
 

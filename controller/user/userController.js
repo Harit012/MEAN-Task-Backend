@@ -43,7 +43,11 @@ exports.getUser = async (req, res) => {
             .aggregate([...pipeline])
             .skip(page * userPerPage)
             .limit(userPerPage);
-          res.status(200).send({ success: true, users: users });
+          if (users.length == 0) {
+            res.status(404).send({ success: false, message: "No Users Found" });
+          } else {
+            res.status(200).send({ success: true, users: users });
+          }
         } else {
           const users = await userModel
             .aggregate([
@@ -60,7 +64,11 @@ exports.getUser = async (req, res) => {
             ])
             .skip(page * userPerPage)
             .limit(userPerPage);
-          res.status(200).send({ success: true, users: users });
+          if (users.length == 0) {
+            res.status(404).send({ success: false, message: "No Users Found" });
+          } else {
+            res.status(200).send({ success: true, users: users });
+          }
         }
         break;
 
@@ -70,7 +78,11 @@ exports.getUser = async (req, res) => {
             .aggregate([...pipeline, { $sort: { userName: 1 } }])
             .skip(page * userPerPage)
             .limit(userPerPage);
-          res.status(200).send({ success: true, users: users });
+          if (users.length == 0) {
+            res.status(404).send({ success: false, message: "No Users Found" });
+          } else {
+            res.status(200).send({ success: true, users: users });
+          }
         } else {
           const users = await userModel
             .aggregate([
@@ -90,7 +102,11 @@ exports.getUser = async (req, res) => {
             ])
             .skip(page * userPerPage)
             .limit(userPerPage);
-          res.status(200).send({ status: "Success", users: users });
+          if (users.length == 0) {
+            res.status(404).send({ success: false, message: "No Users Found" });
+          } else {
+            res.status(200).send({ success: true, users: users });
+          }
         }
         break;
 
@@ -100,7 +116,11 @@ exports.getUser = async (req, res) => {
             .aggregate([...pipeline, { $sort: { email: 1 } }])
             .skip(page * userPerPage)
             .limit(userPerPage);
-          res.status(200).send({ success: true, users: users });
+          if (users.length == 0) {
+            res.status(404).send({ success: false, message: "No Users Found" });
+          } else {
+            res.status(200).send({ success: true, users: users });
+          }
         } else {
           const users = await userModel
             .aggregate([
@@ -120,7 +140,11 @@ exports.getUser = async (req, res) => {
             ])
             .skip(page * userPerPage)
             .limit(userPerPage);
-          res.status(200).send({ status: "Success", users: users });
+          if (users.length == 0) {
+            res.status(404).send({ success: false, message: "No Users Found" });
+          } else {
+            res.status(200).send({ success: true, users: users });
+          }
         }
         break;
 
@@ -130,7 +154,11 @@ exports.getUser = async (req, res) => {
             .aggregate([...pipeline, { $sort: { phone: 1 } }])
             .skip(page * userPerPage)
             .limit(userPerPage);
-          res.status(200).send({ success: true, users: users });
+          if (users.length == 0) {
+            res.status(404).send({ success: false, message: "No Users Found" });
+          } else {
+            res.status(200).send({ success: true, users: users });
+          }
         } else {
           const users = await userModel
             .aggregate([
@@ -150,12 +178,15 @@ exports.getUser = async (req, res) => {
             ])
             .skip(page * userPerPage)
             .limit(userPerPage);
-          res.status(200).send({ success: true, users: users });
+          if (users.length == 0) {
+            res.status(404).send({ success: false, message: "No Users Found" });
+          } else {
+            res.status(200).send({ success: true, users: users });
+          }
         }
         break;
     }
-  } 
-  catch (err) {
+  } catch (err) {
     res
       .status(500)
       .send({ success: false, message: "can not get user from server" });

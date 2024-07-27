@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const createRideController = require("../controller/rides/create-ride");
 const confirmRideController = require("../controller/rides/confirmed-ride");
+const rideHistoryController = require("../controller/rides/ride-history")
 const middlewares = require("../middlewares/Params check/ride");
 const rules = require("../middlewares/Field validators/ride")
 const {validate} = require("../middlewares/Field validators/login");
@@ -18,8 +19,14 @@ router.get("/confirmed-ride/getAllDrivers",middlewares.getAllDriversParamsCheck,
 
 router.get("/confirmed-ride/getRides",confirmRideController.getConfirmedRides)
 
+router.get("/confirmed-ride/getTimeOut", confirmRideController.getTimeOut)
+
 router.patch("/confirmed-ride/cancel-ride",middlewares.patchCancleRideParamsCheck,confirmRideController.patchCancleRide)
 
 router.patch("/confirmed-ride/assign-driver",middlewares.patchAsssignDriverParamsCheck,rules.patchAssignDriverValidationRules(),validate, confirmRideController.patchAssingDriver )
 
+
+// Ride History
+
+router.get("/ride-history/getAllRides",rideHistoryController.getAllRides)
 module.exports = router

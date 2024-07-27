@@ -36,7 +36,7 @@ exports.deleteDriverParamsCheck = (req, res, next) => {
 };
 
 exports.patchDriverParamsCheck = (req, res, next) => {
-  if (req.body.id && typeof(req.body.approvel) == "boolean") {
+  if (req.body.id && typeof req.body.approvel == "boolean") {
     next();
   } else {
     res
@@ -74,20 +74,32 @@ exports.putDriverParamsCheck = (req, res, next) => {
   }
 };
 
-// Running Request 
+// Running Request
 
 exports.patchAcceptRideParamsCheck = (req, res, next) => {
-  if(req.body.rideId){
+  if (req.body.rideId) {
     next();
-  }else{
-    res.status(400).send({success: false,message:"rideId is not Provided"});
+  } else {
+    res.status(400).send({ success: false, message: "rideId is not Provided" });
   }
-}
+};
 
 exports.patchStatusChange = (req, res, next) => {
-  if(req.body.rideId && req.body.status){
+  if (req.body.rideId && req.body.status) {
     next();
-  }else{
-    res.status(400).send({success: false,message:"rideId or status is not Provided"});
+  } else {
+    res
+      .status(400)
+      .send({ success: false, message: "rideId or status is not Provided" });
   }
-}
+};
+
+exports.patchBlockDriverParamsCheck = (req, res, next) => {
+  if (req.body.driverId, req.body.rideId) {
+    next();
+  } else {
+    res
+      .status(400)
+      .send({ success: false, message: "driverId or rideId is not Provided" });
+  }
+};

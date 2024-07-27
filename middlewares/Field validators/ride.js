@@ -67,6 +67,7 @@ exports.getAllDriversValidationRules = () => {
     return [
         query("cityId").isMongoId().withMessage("cityId must be a unique MongoId"),
         query("serviceType").isString().withMessage("driverId must be a String"),
+        query("rideId").isMongoId().withMessage("rideId must be a unique MongoId"),
     ]
 }
 

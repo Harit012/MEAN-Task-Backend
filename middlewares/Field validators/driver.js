@@ -100,3 +100,10 @@ exports.patchRideStatusChageValidationRules = () => {
     body("status").isString().withMessage("status must be a string").isIn(["arrived", "picked", "started", "completed"]).withMessage("status must be (arrived/picked/started/completed)"),
   ]
 }
+
+exports.patchBlockDriverValidationRules = () => {
+  return [
+    body("driverId").isMongoId().withMessage("driverId must be a unique MongoId"),
+    body("rideId").isMongoId().withMessage("rideId must be a unique MongoId"),
+  ]
+}

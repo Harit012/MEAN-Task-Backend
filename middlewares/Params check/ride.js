@@ -34,7 +34,7 @@ exports.postCreateRideParamsCheck = (req, res, next) => {
     req.body.useremail &&
     req.body.username &&
     req.body.userphone &&
-    req.body.endPonts &&
+    req.body.endPoints &&
     req.body.stopPoints &&
     req.body.sourceCity
   ) {
@@ -61,7 +61,7 @@ exports.patchCancleRideParamsCheck = (req, res, next) => {
 // assign Driver 
 
 exports.getAllDriversParamsCheck = (req,res,next)=>{
-  if(req.query.cityId && req.query.serviceType ){
+  if(req.query.cityId && req.query.serviceType && req.query.rideId){
     next();
   }else{
     res.status(400).send({

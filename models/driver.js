@@ -17,7 +17,7 @@ const driverSchema = new mongoose.Schema({
     phone: {
         type: String,
         required: true,
-        match: /^[0-9]{10}$/,
+        match: /^\d{10}$/,
         unique: true,
     },
     country: {

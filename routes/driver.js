@@ -28,4 +28,7 @@ router.patch("/running-request/accept-ride",middlewares.patchAcceptRideParamsChe
 
 router.patch("/running-request/statusChange",middlewares.patchStatusChange,rules.patchRideStatusChageValidationRules(),validate,runningRequestController.patchStatusChange )
 
+router.patch("/running-request/remove-driver",middlewares.patchAcceptRideParamsCheck,rules.patchAcceptRideValidationRules(),validate,runningRequestController.patchDeleteDriver)
+
+router.patch("/running-request/bolck-driver",middlewares.patchBlockDriverParamsCheck,rules.patchBlockDriverValidationRules(),validate,runningRequestController.patchBlockDriver)
 module.exports = router
