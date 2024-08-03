@@ -2,6 +2,7 @@ const userModel = require("../../models/user");
 const fs = require("fs");
 const path = require("path");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const mailing = require("../messaging/mailer");
 
 const userPerPage = 10;
 
@@ -211,6 +212,12 @@ exports.postUser = async (req, res) => {
     });
     await newUser.save();
     res.status(200).send({ success: true, user: newUser });
+    mailing.sendMail(
+      "Welcome Mail",
+      newUser.userEmail,
+      newUser.userName,
+      "User"
+    );
   } catch (err) {
     fs.unlink(path.join(__dirname, `../../public/${file}`), (res) => {});
     res

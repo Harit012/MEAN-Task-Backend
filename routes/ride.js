@@ -28,5 +28,7 @@ router.patch("/confirmed-ride/assign-driver",middlewares.patchAsssignDriverParam
 
 // Ride History
 
-router.get("/ride-history/getAllRides",rideHistoryController.getAllRides)
+router.get("/ride-history/getAllRides",rideHistoryController.getAllRides);
+
+router.get("/ride-history/getRidesForDownload",rideHistoryController.getRodesForDownload);
 module.exports = router

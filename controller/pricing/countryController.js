@@ -22,6 +22,7 @@ exports.postCountry = async (req, res) => {
       timezones: req.body.timezones,
       latlng: req.body.latlng,
       countryShortName: req.body.countryShortName,
+      currencyISOName: req.body.currencyISOName
     });
     await country.save();
     res.status(200).send({ success: true, country: country });

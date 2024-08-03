@@ -1,7 +1,8 @@
 const driverModel = require("../../models/driver");
 const fs = require("fs");
-const { BlockList } = require("net");
+// const { BlockList } = require("net");
 const path = require("path");
+const mailing = require("../messaging/mailer");
 
 const driversPerPage = 10;
 
@@ -228,6 +229,12 @@ exports.postDriver = async (req, res) => {
     });
     await driver.save();
     res.status(201).send({ status: "Success", driver: driver });
+    mailing.sendMail(
+      "Welcome Mail",
+      req.body.driverEmail,
+      driver.driverName,
+      "Driver"
+    );
   } catch (err) {
     if (req.file) {
       let newpath = req.file.path;
@@ -325,5 +332,3 @@ exports.patchServiceType = async (req, res) => {
     });
   }
 };
-
-

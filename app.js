@@ -44,6 +44,10 @@ io.on("connection", (socket) => {
   console.log(`✅✅ Socket Id: ${socket.id} ✅✅`);
   io.emit("message", "Hello Socket 👋");
 
+  exports.emitLink = (url) => {
+    socket.emit("paymentLink", url);
+  };
+  
   socket.on("DriverReaction", (data) => {
     if (typeof data.reaction == "number") {
       DriveReaction = data.reaction;
@@ -60,6 +64,9 @@ io.on("connection", (socket) => {
       data.timeOut &&
       data.driverIds
     ) {
+
+      
+
       let count = 0;
       let itration = 0;
       let status = "none";
@@ -105,6 +112,7 @@ io.on("connection", (socket) => {
             totalItr: DriverList.length,
           });
           count = 0;
+          // findDriversAndAddToList()
           itration++;
           DriveReaction = 2;
 

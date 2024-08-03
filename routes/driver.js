@@ -31,4 +31,7 @@ router.patch("/running-request/statusChange",middlewares.patchStatusChange,rules
 router.patch("/running-request/remove-driver",middlewares.patchAcceptRideParamsCheck,rules.patchAcceptRideValidationRules(),validate,runningRequestController.patchDeleteDriver)
 
 router.patch("/running-request/bolck-driver",middlewares.patchBlockDriverParamsCheck,rules.patchBlockDriverValidationRules(),validate,runningRequestController.patchBlockDriver)
+
+router.get("/running-request/proxy",runningRequestController.proxyrequest)
+
 module.exports = router

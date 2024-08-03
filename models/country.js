@@ -29,6 +29,10 @@ const countrySchema = new mongoose.Schema({
   countryShortName:{
     type: String,
     required: true,
+  },
+  currencyISOName:{
+    type: String,
+    required: true,
   }
 });
 

@@ -79,6 +79,7 @@ exports.postVerifyUserwithPhone = async (req, res) => {
           _id: 1,
           userName: 1,
           userEmail: 1,
+          customerId:1,
           phone: 1,
           country: {
             _id: 1,

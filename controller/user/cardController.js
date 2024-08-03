@@ -33,7 +33,7 @@ exports.postCard = async (req, res) => {
 };
 
 exports.setDefault = async (req, res) => {
-  var data = req.body;
+  let data = req.body;
     let custId = data.customerId;
     let cardId = data.cardId;
     try {

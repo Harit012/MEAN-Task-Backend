@@ -272,7 +272,7 @@ exports.getAllDrivers = async (req, res) => {
     blocked.forEach((element) => {
       blockList.push(...element.blockList);
     })
-    console.log(blockList)
+    // console.log(blockList)
     // finding Drivers
     let drivers = await driverModel.aggregate([
       {
@@ -350,7 +350,7 @@ exports.patchCancleRide = async (req, res) => {
       },
       ...pipeline2
     ]);
-    console.log(updatedRide)
+    // console.log(updatedRide)
     res.status(200).send({ success: true, message: "ride cancelled" });
     let io = req.app.get("socketio");
     io.emit("cancelRide", updatedRide[0]);

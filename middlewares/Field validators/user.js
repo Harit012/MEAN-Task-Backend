@@ -68,7 +68,6 @@ exports.deleteUserValidationRules = () => {
 // for cards 
 exports.cardValidationRules = () => {
   return [
-    body("cardId").matches(/^card_[a-zA-Z0-9]{24}$/).withMessage("CardId is not Valid"),
     body("customerId").matches(/^cus_[a-zA-Z0-9]{14}$/).withMessage("CustomerId is not Valid")
   ]
 }
