@@ -5,7 +5,8 @@ const cors = require("cors");
 const path = require("path");
 const socketIo = require("socket.io");
 const http = require("http");
-const cron = require("cron");
+const { job } = require('./cron');
+
 
 const PORT = process.env.PORT || 3001;
 
@@ -18,7 +19,7 @@ const corsOptions = {
 };
 const loginRouter = require("./routes/login");
 const adminRouter = require("./routes/admin");
-const databaseRouter = require("./routes/databaseConnection");
+const dataBase = require("./routes/databaseConnection");
 
 const app = express();
 let server = http.createServer(app);
@@ -34,146 +35,28 @@ const io = socketIo(server, {
   },
 });
 
-app.set("socketio", io);
-
+global.io = io;
 // cron connetion
 
-let DriveReaction = 2;
 
 io.on("connection", (socket) => {
   console.log(`✅✅ Socket Id: ${socket.id} ✅✅`);
+  // console.log(socket)
   io.emit("message", "Hello Socket 👋");
 
-  exports.emitLink = (url) => {
-    socket.emit("paymentLink", url);
+  exports.emitEventTOIo = ( event, data)=>{
+    io.emit(event, data);
+  }
+
+  exports.emitEventToSocket = (event, data) => {
+    socket.emit(event, data);
   };
   
-  socket.on("DriverReaction", (data) => {
-    if (typeof data.reaction == "number") {
-      DriveReaction = data.reaction;
-    } else {
-      io.emit("Error", "Required Data is not provided :- reaction");
-    }
-  });
-
-  socket.on("cronDrivers", (data) => {
-    if (
-      data.drivers &&
-      data.type &&
-      data.rideId &&
-      data.timeOut &&
-      data.driverIds
-    ) {
-
-      
-
-      let count = 0;
-      let itration = 0;
-      let status = "none";
-      let DriverList = data.drivers;
-      let type = data.type;
-      let rideId = data.rideId;
-      let waitTime = data.timeOut;
-      let DriverIds = data.driverIds;
-      let cronJob = new cron.CronJob("*/1 * * * * *", function () {
-        let renNo = DriveReaction;
-        count++;
-        if (renNo == 1) {
-          status = "accepted";
-          io.emit("Accepted", {
-            rideId: rideId,
-            status: status,
-            driver: DriverList[itration],
-            driverId: DriverIds[itration],
-            time: count,
-            type: type,
-            itr: itration,
-            totalTime: waitTime,
-            totalItr: DriverList.length,
-          });
-          io.emit("cronStoped",{
-            status: status
-          })
-          cronJob.stop();
-          count = 0;
-          itration = 0;
-          DriveReaction = 2;
-        } else if (renNo == 0) {
-          status = "rejected";
-          io.emit("Rejected", {
-            rideId: rideId,
-            status: status,
-            driver: DriverList[itration],
-            driverId: DriverIds[itration],
-            time: count,
-            type: type,
-            itr: itration,
-            totalTime: waitTime,
-            totalItr: DriverList.length,
-          });
-          count = 0;
-          // findDriversAndAddToList()
-          itration++;
-          DriveReaction = 2;
-
-          if (itration > DriverList.length - 1) {
-            cronJob.stop();
-            io.emit("cronStoped",{
-              status: status
-            })
-          }
-        } else {
-          if (count >= waitTime) {
-            count = 0;
-            itration++;
-            if (itration > DriverList.length - 1) {
-              io.emit("cronStoped",{
-                status: status
-              });
-              cronJob.stop();
-              count = 0;
-              itration = 0;
-            }
-          } else if (count == 1) {
-            status = "pending";
-            io.emit("Pending", {
-              rideId: rideId,
-              status: status,
-              driver: DriverList[itration],
-              driverId: DriverIds[itration],
-              time: count,
-              type: type,
-              new: true,
-              itr: itration,
-              totalTime: waitTime,
-              totalItr:DriverList.length
-
-            });
-          }
-          status = "pending";
-          io.emit("Pending", {
-            rideId: rideId,
-            status: status,
-            driver: DriverList[itration],
-            driverId: DriverIds[itration],
-            time: count,
-            type: type,
-            new: false,
-            itr: itration,
-            totalTime: waitTime,
-            totalItr:DriverList.length
-          });
-        }
-      });
-      cronJob.start();
-    } else {
-      io.emit("Error", "Required Data is not provided");
-    }
-  });
 });
+ 
 
 // to check DATABASE connectivity
-app.use("/", databaseRouter);
+dataBase.connection();
 
 // routes
 app.use("/user", loginRouter);

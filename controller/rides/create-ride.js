@@ -7,6 +7,7 @@ const crypto = require("crypto");
 const { patchzone } = require("../pricing/zoneController");
 const { default: mongoose } = require("mongoose");
 const { body, validationResult } = require('express-validator');
+const driver = require("../../models/driver");
 
 const pipeline = [
   {
@@ -44,6 +45,7 @@ const pipeline2 = [
       paymentMethod: 1,
       rideTime: 1,
       price: 1,
+      driverProfit: 1,
       stops: 1,
       userName: 1,
       userPhone: 1,
@@ -109,7 +111,7 @@ exports.postCalculatePricing = async (req, res) => {
     let prices = [];
     // Getting Pricings
     try {
-      var pricings = await vehiclePricingModel.aggregate([
+      let pricings = await vehiclePricingModel.aggregate([
         {
           $match: {
             city: zoneId,
@@ -132,7 +134,7 @@ exports.postCalculatePricing = async (req, res) => {
     }
     // getting vehicle type
     try {
-      var vehicleTypes = await vehicleModel.aggregate([
+      await vehicleModel.aggregate([
         {
           $match: {},
         },
@@ -157,9 +159,11 @@ exports.postCalculatePricing = async (req, res) => {
         type.basePrice +
         (distance - type.distanceForBasePrice) * type.pricePerUnitDistance +
         time * type.pricePerUnitTime;
+        farePrice = Number(farePrice.toFixed(2));
       farePrice = type.minFare > farePrice ? type.minFare : farePrice;
-
+      let driverProfit = Number(((type.driverProfit/100)*farePrice).toFixed(2));
       prices.push({
+        driverProfit: driverProfit,
         vehicleType: type.vehicleType,
         price: farePrice,
       });
@@ -179,10 +183,9 @@ exports.postCalculatePricing = async (req, res) => {
 };
 
 exports.postCreateRide = async (req, res) => {
+  console.log(req.body);
   try {
     let uid = crypto.randomUUID();
-    console.log(uid);
-    // console.log(req.body)
     let ride = await rideModel.create({
       rideId: uid,
       userId: req.body.userId,
@@ -194,6 +197,7 @@ exports.postCreateRide = async (req, res) => {
       paymentMethod: req.body.paymentmethod,
       rideTime: req.body.ridetime,
       price: req.body.price,
+      driverProfit: req.body.driverProfit,
       stops: req.body.stops,
       userEmail: req.body.useremail,
       userName: req.body.username,
@@ -203,7 +207,6 @@ exports.postCreateRide = async (req, res) => {
       stopPoints: req.body.stopPoints,
       sourceCity: req.body.sourceCity,
     });
-    
     let outputRide = await rideModel.aggregate([
       {
         $match: {
@@ -212,8 +215,7 @@ exports.postCreateRide = async (req, res) => {
       },
       ...pipeline2
     ]);
-    const io = req.app.get("socketio");
-    io.emit("newRide", outputRide[0]);
+    global.io.emit("newRide", outputRide[0]);
     res
       .status(200)
       .send({ status: "Success", message: "Ride Created Successfully" });

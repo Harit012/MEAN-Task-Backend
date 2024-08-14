@@ -47,6 +47,7 @@ const pipeline = [
             stopPoints: 1,
             driverName: "$driver.driverName",
             sourceCity: 1,
+            rating:1
           },
         },
       ],
@@ -85,6 +86,7 @@ const pipeline = [
             stopPoints: 1,
             driverName: null,
             sourceCity: 1,
+            rating:1
           },
         },
       ],

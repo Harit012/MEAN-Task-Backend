@@ -28,7 +28,7 @@ exports.postDriversParamsCheck = (req, res, next) => {
 };
 
 exports.deleteDriverParamsCheck = (req, res, next) => {
-  if (req.query.id) {
+  if (req.query.id && req.query.driver_stripe_id) {
     next();
   } else {
     res.status(400).send({ success: false, message: "Id is not Provided" });
@@ -74,6 +74,15 @@ exports.putDriverParamsCheck = (req, res, next) => {
   }
 };
 
+exports.postAddBankAccountParamsCheck = (req, res, next) => {
+  if (req.body.driverId && req.body.accountNumber && req.body.routingNumber) {
+    next();
+  } else {
+    res
+      .status(400)
+      .send({ success: false, message: "Please enter all the fields" });
+  }
+};
 // Running Request
 
 exports.patchAcceptRideParamsCheck = (req, res, next) => {
@@ -94,12 +103,64 @@ exports.patchStatusChange = (req, res, next) => {
   }
 };
 
-exports.patchBlockDriverParamsCheck = (req, res, next) => {
-  if (req.body.driverId, req.body.rideId) {
+exports.patchDriverResponseParamsCheck = (req, res, next) => {
+  if (typeof req.body.response == "number" && req.body.rideId) {
     next();
   } else {
-    res
-      .status(400)
-      .send({ success: false, message: "driverId or rideId is not Provided" });
+    res.status(400).send({ success: false, message: "rideId is not Provided" });
+  }
+};
+exports.patchCompleteRideParamsCheck = (req, res, next) => {
+  if (req.body.rideId) {
+    next();
+  } else {
+    res.status(400).send({ success: false, message: "rideId is not Provided" });
+  }
+};
+
+exports.postPaymentProcessParamsCheck = (req, res, next) => {
+  let obj = req.body;
+  if (
+    obj.id &&
+    obj.driver_stripe_id &&
+    obj.customerId &&
+    obj.destination &&
+    obj.source &&
+    obj.rideTime &&
+    obj.userName &&
+    obj.time &&
+    obj.paymentMethod &&
+    obj.serviceType &&
+    obj.price &&
+    obj.driverName &&
+    obj.driverProfit &&
+    obj.csn &&
+    obj.distance &&
+    obj.rating
+  ) {
+    next();
+  } else {
+    res.status(400).send({
+      success: false,
+      message: "feilds are missing",
+      requiredFields: [
+        "id",
+        "driver_stripe_id",
+        "customerId",
+        "destination",
+        "source",
+        "rideTime",
+        "userName",
+        "time",
+        "paymentMethod",
+        "serviceType",
+        "price",
+        "driverName",
+        "driverProfit",
+        "csn",
+        "distance",
+        "rating"
+      ],
+    });
   }
 };

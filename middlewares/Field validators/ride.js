@@ -28,6 +28,7 @@ exports.postCerateRideValidationRules = () => {
     body("serviceType").isString().withMessage("servieType must be a string"),
     body("ridetime").isString().withMessage("ridetime must be a string"),
     body("price").isNumeric().withMessage("price must be a number"),
+    body("driverProfit").isNumeric().withMessage("driverProfit must be a number"),
     body("stops")
     .isArray()
     .withMessage("stops must be an array"),

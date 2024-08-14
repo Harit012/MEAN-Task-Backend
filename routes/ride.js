@@ -21,10 +21,11 @@ router.get("/confirmed-ride/getRides",confirmRideController.getConfirmedRides)
 
 router.get("/confirmed-ride/getTimeOut", confirmRideController.getTimeOut)
 
-router.patch("/confirmed-ride/cancel-ride",middlewares.patchCancleRideParamsCheck,confirmRideController.patchCancleRide)
+router.patch("/confirmed-ride/cancel-ride",middlewares.patchCancleRideParamsCheck,rules.patchCancleRideValidationRules(),validate,confirmRideController.patchCancleRide)
 
-router.patch("/confirmed-ride/assign-driver",middlewares.patchAsssignDriverParamsCheck,rules.patchAssignDriverValidationRules(),validate, confirmRideController.patchAssingDriver )
+router.patch("/confirmed-ride/assign-driver",middlewares.patchAsssignDriverParamsCheck,rules.patchAssignDriverValidationRules(),validate, confirmRideController.patchAssingDriverManually )
 
+router.patch("/confirmed-ride/assign-any-driver",middlewares.patchCancleRideParamsCheck,rules.patchCancleRideValidationRules(),validate,confirmRideController.patchAssignToAnyDriver)
 
 // Ride History
 

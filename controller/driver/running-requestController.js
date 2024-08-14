@@ -5,6 +5,7 @@ const appSocket = require("../../app");
 const mailing = require("../messaging/mailer");
 const messaging = require("../messaging/sms");
 const { ObjectId } = require("mongodb");
+const query = require("../../Database Operations/driver/runningRequest");
 let url = "empty";
 const pipeline = [
   {
@@ -36,6 +37,7 @@ const pipeline = [
       paymentMethod: 1,
       rideTime: 1,
       price: 1,
+      driverProfit: 1,
       stops: 1,
       userName: 1,
       userPhone: 1,
@@ -47,65 +49,6 @@ const pipeline = [
       stopPoints: 1,
       driverName: "$driver.driverName",
       driverId: "$driver._id",
-    },
-  },
-];
-const pipeline2 = [
-  {
-    $lookup: {
-      from: "users",
-      localField: "userId",
-      foreignField: "_id",
-      as: "user",
-    },
-  },
-  { $unwind: "$user" },
-  {
-    $lookup: {
-      from: "countries",
-      localField: "user.country",
-      foreignField: "_id",
-      as: "country",
-    },
-  },
-  {
-    $unwind: "$country",
-  },
-  {
-    $lookup: {
-      from: "drivers",
-      localField: "driverId",
-      foreignField: "_id",
-      as: "driver",
-    },
-  },
-  { $unwind: "$driver" },
-  {
-    $project: {
-      _id: 1,
-      source: 1,
-      destination: 1,
-      time: 1,
-      distance: 1,
-      serviceType: 1,
-      paymentMethod: 1,
-      rideTime: 1,
-      price: 1,
-      stops: 1,
-      userName: 1,
-      userPhone: 1,
-      rideId: 1,
-      rideType: 1,
-      userProfile: "$user.userProfile",
-      status: 1,
-      endPoints: 1,
-      stopPoints: 1,
-      driverName: "$driver.driverName",
-      driverId: "$driver._id",
-      customerId: "$user.customerId",
-      csn: "$country.currencyISOName",
-      userEmail: "$user.userEmail",
-      callCode: "$country.countryCallCode",
     },
   },
 ];
@@ -121,6 +64,8 @@ exports.getRunningRequest = async (req, res) => {
               $and: [
                 { status: { $ne: "completed" } },
                 { status: { $ne: "available" } },
+                { status: { $ne: "assignedToAny" } },
+                { status: { $ne: "assignedToOne" } },
               ],
             },
           ],
@@ -133,7 +78,12 @@ exports.getRunningRequest = async (req, res) => {
         $match: {
           $and: [
             { driverId: { $exists: true } },
-            { status: { $eq: "available" } },
+            {
+              $or: [
+                { status: { $eq: "assignedToAny" } },
+                { status: { $eq: "assignedToOne" } },
+              ],
+            },
           ],
         },
       },
@@ -159,76 +109,26 @@ exports.getRunningRequest = async (req, res) => {
 };
 
 exports.patchAcceptRide = async (req, res) => {
-  try {
-    let ride = await rideModel.findOneAndUpdate(
-      { _id: req.body.rideId },
-      { status: "accepted" },
-      { new: true }
-    );
-
-    let rideTOsend = await rideModel.aggregate([
-      { $match: { _id: ride._id } },
-      ...pipeline2,
-    ]);
-    await driverModel.findOneAndUpdate(
-      { _id: ride.driverId },
-      { $set: { isAvailable: false } }
-    );
-    res.status(200).send({ success: true, ride: rideTOsend[0] });
-    messaging.sendSMS(rideTOsend[0].status,rideTOsend[0].callCode,rideTOsend[0].userPhone,rideTOsend[0]);
-
-    // socket
-    let io = req.app.get("socketio");
-    io.emit("acceptRideFromServer", rideTOsend[0]);
-  } catch (err) {
-    res
-      .status(500)
-      .send({ success: false, message: "can not accept ride from server" });
-  }
+  // try {
+  //   await query.acceptRideByDriver(req.body.rideId);
+  //   let rideTOsend = await query.rideToSend(req.body.rideId);
+  //   res.status(200).send({ success: true, ride: rideTOsend });
+  //   // messaging.sendSMS(rideTOsend.status,rideTOsend.callCode,rideTOsend.userPhone,rideTOsend);
+  //   // socket
+  //   global.io.emit("acceptRideFromServer", rideTOsend);
+  // } catch (err) {
+  //   res
+  //     .status(500)
+  //     .send({ success: false, message: "can not accept ride from server" });
+  // }
 };
 
 exports.patchStatusChange = async (req, res, next) => {
   try {
-    let UpdatedRide = await rideModel.findOneAndUpdate(
-      { _id: req.body.rideId },
-      { status: req.body.status },
-      { new: true }
-    );
-    let ride = await rideModel.aggregate([
-      { $match: { _id: UpdatedRide._id } },
-      ...pipeline2,
-    ]);
-    if (req.body.status == "completed") {
-      await driverModel.findOneAndUpdate(
-        { _id: ride[0].driverId },
-        { $set: { isAvailable: true } }
-      );
-    }
-    res.status(200).send({ success: true, ride: ride[0] });
-    let io = req.app.get("socketio");
-    // socket
-    io.emit("changeStatusFromServer", ride[0]);
-    if (ride[0].status == "started" || ride[0].status == "completed") {
-      messaging.sendSMS(
-        ride[0].status,
-        ride[0].callCode,
-        ride[0].userPhone,
-        ride[0]
-      );
-    }
-    if (ride[0].status == "completed") {
-      mailing.sendMail("Ride Completed", ride[0].userEmail,ride[0].userName,"user",ride[0]);
-      io.emit("CompletedRide", ride[0]);
-      let rideForPayment = ride[0];
-      if (rideForPayment.paymentMethod == "card") {
-        await paymentConformation(
-          rideForPayment.csn,
-          rideForPayment.customerId,
-          rideForPayment.price
-        );
-        messaging.sendSMS("Payment Done",rideForPayment.callCode,rideForPayment.userPhone,rideForPayment);
-      }
-    }
+    query.statusChange(req.body.rideId, req.body.status);
+    let ride = await query.rideToSend(req.body.rideId);
+    res.status(200).send({ success: true, ride: ride });
+    global.io.emit("changeStatusFromServer", ride);
   } catch (err) {
     console.log(err);
     res.status(500).send({
@@ -238,32 +138,105 @@ exports.patchStatusChange = async (req, res, next) => {
   }
 };
 
-exports.patchDeleteDriver = async (req, res) => {
+exports.patchDriverResponse = async (req, res) => {
   try {
-    let updatedRide = await rideModel.findOneAndUpdate(
+    let ride = await rideModel.findOneAndUpdate(
       { _id: req.body.rideId },
-      { $unset: { driverId: 1 } }
+      { AcceptanceStatus: req.body.response }
     );
-    res.status(200).send({ success: true, message: updatedRide });
-  } catch (err) {
-    console.log(err);
-    res
-      .status(500)
-      .send({ success: false, message: "can not delete driver from server" });
-  }
-};
 
-exports.patchBlockDriver = async (req, res) => {
-  try {
-    await rideModel.findOneAndUpdate(
-      { _id: req.body.rideId },
-      { $addToSet: { blockList: req.body.driverId } }
-    );
-    res.status(200).send({ success: true, message: "List Updated" });
+    if (req.body.response == 0) {
+      await driverModel.findOneAndUpdate(
+        { _id: ride.driverId },
+        { $set: { isAvailable: true } }
+      );
+      global.io.emit("Rejected", { rideId: req.body.rideId });
+    } else if (req.body.response == 1) {
+      await query.acceptRideByDriver(req.body.rideId);
+
+      let rideTOsend = await query.rideToSend(req.body.rideId);
+      // messaging.sendSMS(rideTOsend.status,rideTOsend.callCode,rideTOsend.userPhone,rideTOsend);
+      // let io = req.app.get("socketio");
+      // io.emit("acceptRideFromServer", rideTOsend);
+      global.io.emit("acceptRideFromServer", rideTOsend);
+      global.io.emit("cronEnd", {
+        message: "Accepted",
+        rideId: rideTOsend._id,
+      });
+    }
+    res.status(200).send({ success: true, message: "updated" });
   } catch (err) {
     res
       .status(500)
       .send({ success: false, message: "can not block driver from server" });
+  }
+};
+
+exports.patchCompleteRide = async (req, res) => {
+  try {
+    //change status to completed
+    query.statusChange(req.body.rideId, "completed");
+    // getting ride
+    let ride = await query.rideToSend(req.body.rideId);
+    // changing availability of Driver
+    await driverModel.findOneAndUpdate(
+      { _id: ride.driverId },
+      { $set: { isAvailable: true } }
+    );
+    
+    res.status(200).send({ success: true, ride: ride });
+   
+    global.io.emit("CompletedRide", ride);
+
+    // mailing.sendMail("Ride Completed", ride.userEmail,ride.userName,"user",ride);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({ success: false, message: "can not complete ride from server" });
+  }
+};
+
+
+exports.paymentProcess = async (req, res) => {
+  try {
+    let ride = req.body;
+    await rideModel.findOneAndUpdate({_id:ride.id},{$set:{rating:ride.rating}},{new:true});
+    if (ride.paymentMethod == "card") {
+      await paymentConformation(ride.csn, ride.customerId, ride.price);
+    }
+    // messaging.sendSMS("Payment Done",ride.callCode,ride.userPhone,ride);
+    if (url == "empty") {
+      res.status(200).send({ success: true, message: "Payment Completed" });
+    } else {
+      res.status(200).send({ success: true, link: url });
+    }
+    if (ride.paymentMethod == "card") {
+      let account = await stripe.accounts.retrieve(ride.driver_stripe_id);
+      if(account.capabilities.transfers == "active"){
+        await paymentToDriver(ride.driver_stripe_id, ride.driverProfit);
+      }
+      else{
+        console.log("can not transfer money")
+      }
+    }
+  } catch (err) {
+    console.log(err)
+    res.status(500).send({success: false, message: "Error in pament completion"});
+  }
+}
+
+exports.proxyrequest = async (req, res) => {
+  try {
+    const accounts = await stripe.accounts.list({
+      limit: 1,
+    });
+    
+    res.send({
+      success: true,
+      acc:accounts
+    });
+  } catch (err) {
+    console.log(err);
+    res.send({ error: err });
   }
 };
 
@@ -282,74 +255,16 @@ async function paymentConformation(currency, customerId, amount) {
   if (paymentIntent["next_action"] != null) {
     url = paymentIntent["next_action"]["redirect_to_url"];
     url = url["url"];
-    appSocket.emitLink(url);
   }
 }
 
-exports.proxyrequest = async (req, res) => {
-  try {
-    let sourceCity = "669a0b48446b64024ca0d61d";
-    let serviceType = "SUV";
-    let rideId = "66aa066102c2d684e85a8c0e";
-    let assignedDrivers = ["66949f145279064a36371ba7"];
-    let blocked = await rideModel.aggregate([
-      {
-        $match: {
-          _id: new ObjectId(rideId),
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          blockList: 1,
-        },
-      },
-    ]);
-    // creating List of Ids
-    let blockList = [];
-    blocked.forEach((element) => {
-      blockList.push(...element.blockList);
-    });
-    let drivers = await driverModel.aggregate([
-      {
-        $match: {
-          $and: [
-            { city: new ObjectId(sourceCity) },
-            { serviceType: serviceType },
-            { isAvailable: true },
-            { approved: true },
-          ],
-        },
-      },
-      {
-        $project: {
-          _id: 1,
-          driverName: 1,
-          phone: 1,
-          serviceType: 1,
-          isAvailable: 1,
-          approved: 1,
-          country: 1,
-          driverProfile: 1,
-          driverEmail: 1,
-        },
-      },
-    ]);
-    
-    // removing blocked drivers
-    drivers = drivers.filter(
-      (driver) =>
-        !(
-          blockList.includes(driver._id.toString()) ||
-          assignedDrivers.includes(driver._id.toString())
-        )
-    );
-
-    res.status(200).send({ success: true, drivers: drivers });
-  } catch (err) {
-    console.log(err);
-    res
-      .status(500)
-      .send({ success: false, message: "can not get all rides from server" });
-  }
-};
+async function paymentToDriver(driver_stripe_id, driverProfit) {
+  await stripe.transfers.create({
+    // amount: driverProfit/50,
+    amount: 100,
+    currency: 'usd',
+    destination: driver_stripe_id,
+    transfer_group: 'ORDER_95',
+  });
+  // console.log(transfer)
+}

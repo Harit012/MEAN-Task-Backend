@@ -20,6 +20,9 @@ router.patch("/list",middlewares.patchDriverParamsCheck,rules.patchDriverApprova
 
 router.patch("/list/serviceType",middlewares.patchDriverServiceTypeParamsCheck,rules.patchDriverServiceTypeValidationRules(),validate, driverController.patchServiceType)
 
+router.post("/list/addBankAccount",middlewares.postAddBankAccountParamsCheck,rules.postAddBankAccountValidationRules(),validate, driverController.postAddBankAccount)
+
+
 // Running Requests
 
 router.get("/running-request/getRidesForRunningRequest",runningRequestController.getRunningRequest)
@@ -28,9 +31,11 @@ router.patch("/running-request/accept-ride",middlewares.patchAcceptRideParamsChe
 
 router.patch("/running-request/statusChange",middlewares.patchStatusChange,rules.patchRideStatusChageValidationRules(),validate,runningRequestController.patchStatusChange )
 
-router.patch("/running-request/remove-driver",middlewares.patchAcceptRideParamsCheck,rules.patchAcceptRideValidationRules(),validate,runningRequestController.patchDeleteDriver)
+router.patch("/running-request/request-response",middlewares.patchDriverResponseParamsCheck,rules.patchDriverResponseValidationRules(),validate,runningRequestController.patchDriverResponse)
 
-router.patch("/running-request/bolck-driver",middlewares.patchBlockDriverParamsCheck,rules.patchBlockDriverValidationRules(),validate,runningRequestController.patchBlockDriver)
+router.patch("/running-request/complete-ride",middlewares.patchCompleteRideParamsCheck,rules.patchCompleteRideValidationRules(),validate,runningRequestController.patchCompleteRide)
+
+router.post("/running-request/payment-process",middlewares.postPaymentProcessParamsCheck,rules.postPaymentProcessValidationRules(),validate,runningRequestController.paymentProcess)
 
 router.get("/running-request/proxy",runningRequestController.proxyrequest)
 

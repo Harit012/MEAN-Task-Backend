@@ -38,6 +38,7 @@ exports.postAddDriverValidationRules = () => {
 exports.deleteDriverValidationRules = () => {
   return [
     query("id").isMongoId().withMessage("id must be a unique MongoId"),
+    query("driver_stripe_id").matches(/^acct_[a-zA-Z0-9]{16}$/).withMessage("AccountId is not Valid")
   ]
 }
 
@@ -86,6 +87,14 @@ exports.putEditDriverValidationRules = () => {
   ];
 };
 
+exports.postAddBankAccountValidationRules = () => {
+  return [
+    body("driverId").isMongoId().withMessage("driverId must be a unique MongoId"),
+    body("accountNumber").matches(/[0-9]{12}/).withMessage("accountNumber must 12 digits long").isString().withMessage("accountHolderName must be a string"),
+    body("routingNumber").matches(/[0-9]{9}/).withMessage("routingNumber must 9 chaaracters long").isString().withMessage("routingNumber must be a string"),
+  ]
+}
+
 // running request 
 
 exports.patchAcceptRideValidationRules = () => {
@@ -105,5 +114,39 @@ exports.patchBlockDriverValidationRules = () => {
   return [
     body("driverId").isMongoId().withMessage("driverId must be a unique MongoId"),
     body("rideId").isMongoId().withMessage("rideId must be a unique MongoId"),
+  ]
+}
+
+exports.patchDriverResponseValidationRules = () => {
+  return [
+    body("response").isInt({max:1, min:0}).withMessage("response must be a number and less than or equal to 1"),
+    body("rideId").isMongoId().withMessage("rideId must be a unique MongoId"),
+  ]
+}
+
+exports.patchCompleteRideValidationRules = () => {
+  return [
+    body("rideId").isMongoId().withMessage("rideId must be a unique MongoId"),
+  ]
+}
+
+exports.postPaymentProcessValidationRules = () => {
+  return [
+    body("id").isMongoId().withMessage("id must be a unique MongoId"),
+    body("driver_stripe_id").matches(/^acct_[a-zA-Z0-9]{16}$/).withMessage("Driver AccountId is not Valid"),
+    body("customerId").matches(/^cus_[a-zA-Z0-9]{14}$/).withMessage("customer AccountId is not Valid"),
+    body("destination").isString().withMessage("destination must be a string"),
+    body("source").isString().withMessage("source must be a string"),
+    body("rideTime").isString().withMessage("rideTime must be a string"),
+    body("userName").isString().withMessage("userName must be a string"),
+    body("time").isString().withMessage("time must be a string"),
+    body("paymentMethod").isIn(["card", "cash"]).withMessage("paymentMethod must either (card/cash)"),
+    body("serviceType").isString().withMessage("serviceType must string"),
+    body("price").isNumeric().withMessage("price must be a positive number"),
+    body("driverName").isString().withMessage("driverName must string"),
+    body("driverProfit").isNumeric().withMessage("driverProfit must be a positive number"),
+    body("csn").isString().withMessage("csn must string"),
+    body("distance").isString().withMessage("distance must string"),
+    body("rating").isInt({max:5, min:0}).withMessage("rating must be a Integer between 0 and 5"),
   ]
 }

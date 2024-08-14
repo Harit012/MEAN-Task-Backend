@@ -9,7 +9,7 @@ exports.sendSMS = async (status,callCode,phone,ride) => {
     // const phoneNummber = process.env.TWILIO_PHONE_NUMBER
 
     let message;
-    if(status != "paymentDone"){
+    if(status != "Payment Done"){
         message = `${ride.driverName} has ${status} ride.`
     }
     else{

@@ -41,6 +41,9 @@ const driverSchema = new mongoose.Schema({
     isAvailable:{
         type:Boolean,
         default:true
+    },
+    driver_stripe_id:{
+        type:String
     }
 });
 

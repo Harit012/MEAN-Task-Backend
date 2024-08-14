@@ -43,6 +43,10 @@ const rideSchema = new mongoose.Schema({
         type:Number,
         required:true
     },
+    driverProfit:{
+        type:Number,
+        required:true
+    },
     stops:{
         type:[String],
         required:true
@@ -91,6 +95,19 @@ const rideSchema = new mongoose.Schema({
         ref:"driver",
         required:false,
         default:[]
+    },
+    timeOfAssign:{
+        type:Date,
+        required:false
+    },
+    AcceptanceStatus:{
+        type:Number,
+        required:false,
+    },
+    rating:{
+        type:Number,
+        required:true,
+        default:0
     }
 })
 

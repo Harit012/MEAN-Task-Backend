@@ -26,6 +26,7 @@ exports.postCreateRideParamsCheck = (req, res, next) => {
     req.body.distance &&
     req.body.paymentmethod &&
     req.body.price &&
+    req.body.driverProfit &&
     req.body.ridetime &&
     req.body.serviceType &&
     req.body.source &&
