@@ -17,7 +17,7 @@ const job = new CronJob(
           if (Math.floor((Date.now() - element.timeOfAssign) / 1000) == time) {
             await driverModel.findOneAndUpdate(
               { _id: element.driverId },
-              { $set: { isAvailable: true } }
+              { isAvailable: true }
             );
             global.io.emit("Rejected", { rideId: element._id });
           }
@@ -37,17 +37,29 @@ const job = new CronJob(
             let availableDrivers = await queries.fetchAvailableDrivers(
               element.serviceType,
               element.sourceCity,
-              element.blockList
+              element.blockList,
+              "forAuto"
             );
             if (availableDrivers.length > 0) {
-              let driverId = availableDrivers[0]._id;
-              await queries.assignRideToDriver(element._id, driverId);
-              let assignedRide = await queries.getRideInFormatedMannenr(
-                element._id
+              let availableRightNow = availableDrivers.filter(
+                (driver) => driver.isAvailable
               );
-              global.io.emit("assignRideFromServer", assignedRide);
+
+              // console.log(availableRightNow.length);
+
+              if (availableRightNow.length > 0) {
+                let driverId = availableRightNow[0]._id;
+                // console.log(availableRightNow[0].driverName);
+                await queries.assignRideToDriver(element._id, driverId);
+                let assignedRide = await queries.getRideInFormatedMannenr(
+                  element._id
+                );
+                global.io.emit("assignRideFromServer", assignedRide);
+              } else {
+                global.io.emit("requestOnHold", element._id);
+              }
             } else {
-              console.log("All Driver finished");
+              // console.log("All Driver finished");
               await queries.updateRideStatus(element._id, "available");
               global.io.emit("cronEnd", {
                 message: "All Drivers are Busy",

@@ -315,7 +315,7 @@ exports.putDriver = async (req, res) => {
       (res) => {}
     );
   } else {
-    newpath = req.body.driverProfile;
+    newpath = req.body.oldDriverProfile;
   }
   try {
     await driverModel.findByIdAndUpdate(

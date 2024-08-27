@@ -115,13 +115,17 @@ function throwError(statusCode, message) {
 }
 exports.acceptRideByDriver = async (rideId) => {
   try {
-    await rideModel.findOneAndUpdate(
+    let ride = await rideModel.findOneAndUpdate(
       { _id: rideId },
       { status: "accepted", $unset: { timeOfAssign: 1, AcceptanceStatus: 1 } },
       { new: true }
     );
+    await driverModel.findOneAndUpdate(
+      {_id: ride.driverId},
+      {inRide: true}
+    );
   } catch (err) {
-    console.log(err)
+    console.log(err);
     throw throwError(500, "mongoose Error while accepting Ride");
   }
 };
@@ -140,12 +144,13 @@ exports.rideToSend = async (rideId) => {
 
 exports.statusChange = async (rideId, status) => {
   try {
-    await rideModel.findOneAndUpdate(
+    let ride = await rideModel.findOneAndUpdate(
       { _id: rideId },
       { status: status },
       { new: true }
     );
-  }catch(err){
+    await driverModel.findOneAndUpdate({_id:ride.driverId},{$set :{inRide: false}},{ new: true });
+  } catch (err) {
     throw throwError(500, "mongoose Error while updating Status");
   }
-}
+};

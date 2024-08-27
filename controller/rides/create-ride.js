@@ -6,7 +6,7 @@ const rideModel = require("./../../models/ride");
 const crypto = require("crypto");
 const { patchzone } = require("../pricing/zoneController");
 const { default: mongoose } = require("mongoose");
-const { body, validationResult } = require('express-validator');
+const { body, validationResult } = require("express-validator");
 const driver = require("../../models/driver");
 
 const pipeline = [
@@ -21,19 +21,21 @@ const pipeline = [
       pricePerUnitDistance: 1,
       pricePerUnitTime: 1,
       maxSpace: 1,
+      vehicleImage: "$vehicle.vehicleImage",
     },
   },
 ];
 
 const pipeline2 = [
-  { $lookup: {
-    from : 'users',
-    localField : 'userId',
-    foreignField : '_id',
-    as : 'user'
-  }
- },
-  { $unwind : '$user' },
+  {
+    $lookup: {
+      from: "users",
+      localField: "userId",
+      foreignField: "_id",
+      as: "user",
+    },
+  },
+  { $unwind: "$user" },
   {
     $project: {
       _id: 1,
@@ -51,15 +53,14 @@ const pipeline2 = [
       userPhone: 1,
       rideId: 1,
       rideType: 1,
-      userProfile: '$user.userProfile',
-      status:1,
-      endPoints:1,
-      stopPoints:1,
-      sourceCity:1,
+      userProfile: "$user.userProfile",
+      status: 1,
+      endPoints: 1,
+      stopPoints: 1,
+      sourceCity: 1,
     },
   },
 ];
-
 
 exports.postVerifyUserwithPhone = async (req, res) => {
   try {
@@ -81,7 +82,7 @@ exports.postVerifyUserwithPhone = async (req, res) => {
           _id: 1,
           userName: 1,
           userEmail: 1,
-          customerId:1,
+          customerId: 1,
           phone: 1,
           country: {
             _id: 1,
@@ -91,17 +92,16 @@ exports.postVerifyUserwithPhone = async (req, res) => {
         },
       },
     ]);
-    if(user.length == 0){
-      res.status(404).send({ status: "Failure", message: "User Not Found" });
+    if (user.length == 0) {
+      res.status(404).send({ success: false, message: "User Not Found" });
       return;
     }
-    res.status(200).send({ status: "Success", user: user[0] });
+    res.status(200).send({ success: false, user: user[0] });
   } catch (err) {
     console.log(err);
-    res.status(500).send({ status: "Failure", message: "Error From Server" });
+    res.status(500).send({ success: false, message: "Error From Server" });
   }
 };
-
 
 exports.postCalculatePricing = async (req, res) => {
   try {
@@ -109,47 +109,31 @@ exports.postCalculatePricing = async (req, res) => {
     let distance = req.body.distance;
     let zoneId = new ObjectId(req.body.zoneId);
     let prices = [];
-    // Getting Pricings
-    try {
-      let pricings = await vehiclePricingModel.aggregate([
-        {
-          $match: {
-            city: zoneId,
-          },
+    // get pricing of every city
+    let pricings = await vehiclePricingModel.aggregate([
+      {
+        $match: {
+          city: zoneId,
         },
-        ...pipeline,
-      ]);
-      if(pricings.length == 0){
-        res.status(404).send({
-          status: "Failure",
-          message: "selected city has no pricings",
-        })
-        return;
-      }
-    } catch (err) {
-      res
-        .status(500)
-        .send({ status: "Failure", message: "Error while getting Pricings" });
-      return;
-    }
-    // getting vehicle type
-    try {
-      await vehicleModel.aggregate([
-        {
-          $match: {},
+      },
+      {
+        $lookup: {
+          from: "vehicles",
+          localField: "vehicleType",
+          foreignField: "type",
+          as: "vehicle",
         },
-        {
-          $project: {
-            _id: 0,
-            type: 1,
-            vehicleImage: 1,
-          },
-        },
-      ]);
-    } catch (err) {
-      res.status(500).send({
-        status: "Failure",
-        message: "Error while getting vehicle types",
+      },
+      {
+        $unwind: "$vehicle",
+      },
+      ...pipeline,
+    ]);
+
+    if (pricings.length == 0) {
+      res.status(404).send({
+        success: false,
+        message: "selected city has no pricings",
       });
       return;
     }
@@ -159,26 +143,23 @@ exports.postCalculatePricing = async (req, res) => {
         type.basePrice +
         (distance - type.distanceForBasePrice) * type.pricePerUnitDistance +
         time * type.pricePerUnitTime;
-        farePrice = Number(farePrice.toFixed(2));
+      farePrice = Number(farePrice.toFixed(2));
       farePrice = type.minFare > farePrice ? type.minFare : farePrice;
-      let driverProfit = Number(((type.driverProfit/100)*farePrice).toFixed(2));
+      let driverProfit = Number(
+        ((type.driverProfit / 100) * farePrice).toFixed(2)
+      );
+      let vehicleImage = type.vehicleImage;
       prices.push({
         driverProfit: driverProfit,
         vehicleType: type.vehicleType,
         price: farePrice,
+        vehicleImage: vehicleImage,
       });
     });
-    // adding Images
-    for (let price of prices) {
-      for (let vehicleTypeEle of vehicleTypes) {
-        if (price.vehicleType == vehicleTypeEle.type) {
-          price.vehicleImage = vehicleTypeEle.vehicleImage;
-        }
-      }
-    }
-    res.status(200).send({ status: "Success", prices: prices });
+    res.status(200).send({ success: true, prices: prices });
   } catch (err) {
-    res.status(500).send({ status: "Failure", message: "Error From Server" });
+    console.log(err);
+    res.status(500).send({ success: false, message: "Error From Server" });
   }
 };
 
@@ -213,7 +194,7 @@ exports.postCreateRide = async (req, res) => {
           _id: ride._id,
         },
       },
-      ...pipeline2
+      ...pipeline2,
     ]);
     global.io.emit("newRide", outputRide[0]);
     res

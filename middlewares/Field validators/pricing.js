@@ -90,6 +90,6 @@ exports.patchVehiclePricingValidationRules = () => {
 
 exports.getVehiclePrivingValidationRules = () => {
     return [
-        query("id").isMongoId().withMessage("id must be a unique MongoId"),
+        query("city").isMongoId().withMessage("id must be a unique MongoId"),
     ]
 }

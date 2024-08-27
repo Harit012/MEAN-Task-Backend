@@ -44,6 +44,10 @@ const driverSchema = new mongoose.Schema({
     },
     driver_stripe_id:{
         type:String
+    },
+    inRide:{
+        type:Boolean,
+        default:false
     }
 });
 

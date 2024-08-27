@@ -259,7 +259,8 @@ exports.getAllDrivers = async (req, res) => {
     let drivers = await query.fetchAvailableDrivers(
       serviceType,
       sourceCity,
-      blocked
+      blocked,
+      "forManual"
     );
 
     res.status(200).send({

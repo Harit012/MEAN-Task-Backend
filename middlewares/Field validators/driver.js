@@ -81,9 +81,9 @@ exports.putEditDriverValidationRules = () => {
       .matches(/^[1-9]\d{9}$/)
       .withMessage("phone must be in digits and should not start with 0"),
     // profile Validation
-    body("driverProfile")
+    body("oldDriverProfile")
       .isString()
-      .withMessage("driverProfile must be a string"),
+      .withMessage("oldDriverProfile must be a string"),
   ];
 };
 

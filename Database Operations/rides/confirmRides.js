@@ -275,16 +275,28 @@ exports.fetchBlockedDrivers = async (rideId) => {
 };
 
 // Fetch available drivers based on criteria
-exports.fetchAvailableDrivers = async (serviceType, sourceCity, blockList) => {
+exports.fetchAvailableDrivers = async (serviceType, sourceCity, blockList,flag ) => {
   try {
+    let matchObj={};
+    if(flag == "forManual"){
+       matchObj = {
+         city: new ObjectId(sourceCity),
+         serviceType: serviceType, 
+         approved: true,
+         isAvailable: true,
+         inRide: false,
+       }
+    }else{
+      matchObj = {
+        city: new ObjectId(sourceCity),
+        serviceType: serviceType, 
+        approved: true,
+        inRide: false,
+      }
+    }
     let drivers = await driverModel.aggregate([
       {
-        $match: {
-          city: new ObjectId(sourceCity),
-          serviceType,
-          isAvailable: true,
-          approved: true,
-        },
+        $match: matchObj,
       },
       {
         $project: {
@@ -295,6 +307,7 @@ exports.fetchAvailableDrivers = async (serviceType, sourceCity, blockList) => {
           isAvailable: 1,
           approved: 1,
           country: 1,
+          inRide: 1,
           driverProfile: 1,
           driverEmail: 1,
         },
@@ -307,6 +320,7 @@ exports.fetchAvailableDrivers = async (serviceType, sourceCity, blockList) => {
     );
     return drivers;
   } catch (error) {
+    console.log(error)
     throw throwError(500, "Failed to fetch available drivers.");
   }
 };

@@ -64,7 +64,7 @@ exports.putDriverParamsCheck = (req, res, next) => {
     req.body.phone &&
     req.body.country &&
     req.body.city &&
-    req.body.driverProfile
+    req.body.oldDriverProfile
   ) {
     next();
   } else {

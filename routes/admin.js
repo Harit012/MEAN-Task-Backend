@@ -4,7 +4,7 @@ const userAuth = require("../controller/authentication/userAuth");
 const middlewares = require("../middlewares/Params check/login");
 
 const pricingRouter = require("./pricing");
-const userRouter = require(".//user");
+const userRouter = require("./user");
 const driverRouter = require("./driver");
 const settingRouter = require("./settings");
 const ridesRoute = require("./ride");
