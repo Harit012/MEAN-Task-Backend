@@ -17,7 +17,7 @@ exports.deletecard = async (req, res) => {
 };
 
 exports.postCard = async (req, res) => {
-  var data = req.body;
+  let data = req.body;
     let custId = data.customerId;
     try {
       const card = await stripe.customers.createSource(custId, {

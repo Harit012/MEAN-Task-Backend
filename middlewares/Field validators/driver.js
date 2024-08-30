@@ -90,18 +90,12 @@ exports.putEditDriverValidationRules = () => {
 exports.postAddBankAccountValidationRules = () => {
   return [
     body("driverId").isMongoId().withMessage("driverId must be a unique MongoId"),
-    body("accountNumber").matches(/[0-9]{12}/).withMessage("accountNumber must 12 digits long").isString().withMessage("accountHolderName must be a string"),
-    body("routingNumber").matches(/[0-9]{9}/).withMessage("routingNumber must 9 chaaracters long").isString().withMessage("routingNumber must be a string"),
+    body("accountNumber").matches(/\d{12}/).withMessage("accountNumber must 12 digits long").isString().withMessage("accountHolderName must be a string"),
+    body("routingNumber").matches(/\d{9}/).withMessage("routingNumber must 9 chaaracters long").isString().withMessage("routingNumber must be a string"),
   ]
 }
 
 // running request 
-
-exports.patchAcceptRideValidationRules = () => {
-  return [
-    body("rideId").isMongoId().withMessage("rideId must be a unique MongoId"),
-  ]
-}
 
 exports.patchRideStatusChageValidationRules = () => {
   return [

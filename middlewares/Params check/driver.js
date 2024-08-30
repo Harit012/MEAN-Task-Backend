@@ -85,14 +85,6 @@ exports.postAddBankAccountParamsCheck = (req, res, next) => {
 };
 // Running Request
 
-exports.patchAcceptRideParamsCheck = (req, res, next) => {
-  if (req.body.rideId) {
-    next();
-  } else {
-    res.status(400).send({ success: false, message: "rideId is not Provided" });
-  }
-};
-
 exports.patchStatusChange = (req, res, next) => {
   if (req.body.rideId && req.body.status) {
     next();

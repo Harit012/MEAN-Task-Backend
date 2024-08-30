@@ -286,7 +286,7 @@ exports.fetchAvailableDrivers = async (serviceType, sourceCity, blockList,flag )
          isAvailable: true,
          inRide: false,
        }
-    }else{
+    }else if(flag == "forAuto"){
       matchObj = {
         city: new ObjectId(sourceCity),
         serviceType: serviceType, 
@@ -390,6 +390,7 @@ exports.assignRideToDriver = async (rideId, driverId) => {
     await driverModel.findOneAndUpdate(
       { _id: driverId },
       { $set: { isAvailable: false } }
+      // { new: true }
     );
   } catch (err) {
     console.log(err);

@@ -27,8 +27,6 @@ router.post("/list/addBankAccount",middlewares.postAddBankAccountParamsCheck,rul
 
 router.get("/running-request/getRidesForRunningRequest",runningRequestController.getRunningRequest)
 
-router.patch("/running-request/accept-ride",middlewares.patchAcceptRideParamsCheck,rules.patchAcceptRideValidationRules(),validate,runningRequestController.patchAcceptRide )
-
 router.patch("/running-request/statusChange",middlewares.patchStatusChange,rules.patchRideStatusChageValidationRules(),validate,runningRequestController.patchStatusChange )
 
 router.patch("/running-request/request-response",middlewares.patchDriverResponseParamsCheck,rules.patchDriverResponseValidationRules(),validate,runningRequestController.patchDriverResponse)
@@ -37,6 +35,6 @@ router.patch("/running-request/complete-ride",middlewares.patchCompleteRideParam
 
 router.post("/running-request/payment-process",middlewares.postPaymentProcessParamsCheck,rules.postPaymentProcessValidationRules(),validate,runningRequestController.paymentProcess)
 
-router.get("/running-request/proxy",runningRequestController.proxyrequest)
+// router.get("/running-request/proxy",runningRequestController.proxyrequest)
 
 module.exports = router

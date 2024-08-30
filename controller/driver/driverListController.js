@@ -245,7 +245,7 @@ exports.postDriver = async (req, res) => {
       driver_stripe_id: account.id,
     });
     await driver.save();
-
+    
     res.status(201).send({ status: "Success", driver: driver });
     mailing.sendMail(
       "Welcome Mail",
@@ -413,5 +413,3 @@ exports.postAddBankAccount = async (req, res) => {
     });
   }
 };
-
-

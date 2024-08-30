@@ -1,13 +1,8 @@
 const { ObjectId } = require("mongodb");
 const userModel = require("../../models/user");
 const vehiclePricingModel = require("../../models/vehiclePricing");
-const vehicleModel = require("./../../models/vehicle");
 const rideModel = require("./../../models/ride");
 const crypto = require("crypto");
-const { patchzone } = require("../pricing/zoneController");
-const { default: mongoose } = require("mongoose");
-const { body, validationResult } = require("express-validator");
-const driver = require("../../models/driver");
 
 const pipeline = [
   {
@@ -65,7 +60,6 @@ const pipeline2 = [
 exports.postVerifyUserwithPhone = async (req, res) => {
   try {
     let reqphone = req.body.phone;
-    // console.log(phone)
     let user = await userModel.aggregate([
       { $match: { phone: reqphone } },
       {

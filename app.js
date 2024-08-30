@@ -36,8 +36,6 @@ const io = socketIo(server, {
 });
 
 global.io = io;
-// cron connetion
-
 
 io.on("connection", (socket) => {
   console.log(`✅✅ Socket Id: ${socket.id} ✅✅`);
@@ -53,7 +51,6 @@ io.on("connection", (socket) => {
   };
   
 });
- 
 
 // to check DATABASE connectivity
 dataBase.connection();

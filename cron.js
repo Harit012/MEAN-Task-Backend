@@ -14,10 +14,12 @@ const job = new CronJob(
       if (rides.length > 0) {
         rides.forEach(async (element) => {
           // timeOut condition
-          if (Math.floor((Date.now() - element.timeOfAssign) / 1000) == time) {
+          let timeTaken = Math.floor((Date.now() - element.timeOfAssign) / 1000);
+          if (timeTaken == time+1) {
             await driverModel.findOneAndUpdate(
               { _id: element.driverId },
-              { isAvailable: true }
+              { $set: { isAvailable: true } },
+              { new: true }
             );
             global.io.emit("Rejected", { rideId: element._id });
           }
@@ -44,22 +46,19 @@ const job = new CronJob(
               let availableRightNow = availableDrivers.filter(
                 (driver) => driver.isAvailable
               );
-
-              // console.log(availableRightNow.length);
-
               if (availableRightNow.length > 0) {
                 let driverId = availableRightNow[0]._id;
-                // console.log(availableRightNow[0].driverName);
                 await queries.assignRideToDriver(element._id, driverId);
+
                 let assignedRide = await queries.getRideInFormatedMannenr(
                   element._id
                 );
                 global.io.emit("assignRideFromServer", assignedRide);
+                // return;
               } else {
                 global.io.emit("requestOnHold", element._id);
               }
             } else {
-              // console.log("All Driver finished");
               await queries.updateRideStatus(element._id, "available");
               global.io.emit("cronEnd", {
                 message: "All Drivers are Busy",
@@ -89,9 +88,6 @@ const job = new CronJob(
   true,
   "Asia/Kolkata"
 );
-
-module.exports = { job };
-
 const getRidesToAssign = async () => {
   try {
     const availableRidesToAssign = await rideModel.aggregate([
@@ -133,3 +129,5 @@ const getSettingsTime = async () => {
     console.error("Error in async task:", err);
   }
 };
+
+module.exports = { job };

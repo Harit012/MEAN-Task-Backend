@@ -1,5 +1,4 @@
 const vehiclePricing = require("../../models/vehiclePricing");
-const zoneModel = require("../../models/zone");
 
 const ObjectId = require("mongodb").ObjectId;
 

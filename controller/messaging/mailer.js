@@ -1,5 +1,4 @@
 const nodemailer = require("nodemailer");
-// const settingModel = require("../../models/settings");
 
 exports.sendMail = async(subject, mailId, name, role,ride) => {
     let welcomeMail;
@@ -184,9 +183,6 @@ exports.sendMail = async(subject, mailId, name, role,ride) => {
       </html>
           `;
     }
-    // let settings = await settingModel.findOne({});
-    // let mailUser = settings.mailerUser;
-    // let mailPassword = settings.mailerPassword;
     let mailUser = process.env.NODE_MAILER_USER;
     let mailPassword = process.env.NODE_MAILER_PASSWORD;
 

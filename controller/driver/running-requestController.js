@@ -1,7 +1,6 @@
 const rideModel = require("../../models/ride");
 const driverModel = require("../../models/driver");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const appSocket = require("../../app");
 const mailing = require("../messaging/mailer");
 const messaging = require("../messaging/sms");
 const { ObjectId } = require("mongodb");
@@ -108,21 +107,6 @@ exports.getRunningRequest = async (req, res) => {
   }
 };
 
-exports.patchAcceptRide = async (req, res) => {
-  // try {
-  //   await query.acceptRideByDriver(req.body.rideId);
-  //   let rideTOsend = await query.rideToSend(req.body.rideId);
-  //   res.status(200).send({ success: true, ride: rideTOsend });
-  //   // messaging.sendSMS(rideTOsend.status,rideTOsend.callCode,rideTOsend.userPhone,rideTOsend);
-  //   // socket
-  //   global.io.emit("acceptRideFromServer", rideTOsend);
-  // } catch (err) {
-  //   res
-  //     .status(500)
-  //     .send({ success: false, message: "can not accept ride from server" });
-  // }
-};
-
 exports.patchStatusChange = async (req, res, next) => {
   try {
     query.statusChange(req.body.rideId, req.body.status);
@@ -155,9 +139,7 @@ exports.patchDriverResponse = async (req, res) => {
       await query.acceptRideByDriver(req.body.rideId);
 
       let rideTOsend = await query.rideToSend(req.body.rideId);
-      // messaging.sendSMS(rideTOsend.status,rideTOsend.callCode,rideTOsend.userPhone,rideTOsend);
-      // let io = req.app.get("socketio");
-      // io.emit("acceptRideFromServer", rideTOsend);
+      messaging.sendSMS(rideTOsend.status,rideTOsend.callCode,rideTOsend.userPhone,rideTOsend);
       global.io.emit("acceptRideFromServer", rideTOsend);
       global.io.emit("cronEnd", {
         message: "Accepted",
@@ -188,7 +170,7 @@ exports.patchCompleteRide = async (req, res) => {
    
     global.io.emit("CompletedRide", ride);
 
-    // mailing.sendMail("Ride Completed", ride.userEmail,ride.userName,"user",ride);
+    mailing.sendMail("Ride Completed", ride.userEmail,ride.userName,"user",ride);
   } catch (err) {
     console.log(err);
     res.status(500).send({ success: false, message: "can not complete ride from server" });
@@ -203,7 +185,7 @@ exports.paymentProcess = async (req, res) => {
     if (ride.paymentMethod == "card") {
       await paymentConformation(ride.csn, ride.customerId, ride.price);
     }
-    // messaging.sendSMS("Payment Done",ride.callCode,ride.userPhone,ride);
+    messaging.sendSMS("Payment Done",ride.callCode,ride.userPhone,ride);
     if (url == "empty") {
       res.status(200).send({ success: true, message: "Payment Completed" });
     } else {
@@ -226,13 +208,9 @@ exports.paymentProcess = async (req, res) => {
 
 exports.proxyrequest = async (req, res) => {
   try {
-    const accounts = await stripe.accounts.list({
-      limit: 1,
-    });
-    
     res.send({
       success: true,
-      acc:accounts
+      acc:"done"
     });
   } catch (err) {
     console.log(err);
