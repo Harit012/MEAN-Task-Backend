@@ -12,73 +12,80 @@ const job = new CronJob(
       let time = await getSettingsTime();
       let rides = await getRidesToAssign();
       if (rides.length > 0) {
-        rides.forEach(async (element) => {
-          // timeOut condition
-          let timeTaken = Math.floor((Date.now() - element.timeOfAssign) / 1000);
-          if (timeTaken == time+1) {
-            await driverModel.findOneAndUpdate(
-              { _id: element.driverId },
-              { $set: { isAvailable: true } },
-              { new: true }
-            );
-            global.io.emit("Rejected", { rideId: element._id });
-          }
-          global.io.emit("remainingTime", {
-            seconds:
-              time - Math.floor((Date.now() - element.timeOfAssign) / 1000),
-            rideId: element._id,
-          });
-          // runtime rejection & reAssignment
-          if (
-            element.status == "assignedToAny" &&
-            (element.blockList.length == 0 ||
-              Math.floor((Date.now() - element.timeOfAssign) / 1000) > time ||
-              element.AcceptanceStatus == 0)
-          ) {
-            // finding Available Drivers
-            let availableDrivers = await queries.fetchAvailableDrivers(
-              element.serviceType,
-              element.sourceCity,
-              element.blockList,
-              "forAuto"
-            );
-            if (availableDrivers.length > 0) {
-              let availableRightNow = availableDrivers.filter(
-                (driver) => driver.isAvailable
+        let cronAsync = async (rides) => {
+          for await (let element of rides) {
+            if (element.timeDiff > time && element.timeDiff<time+2) {
+              await driverModel.findOneAndUpdate(
+                { _id: element.driverId },
+                { $set: { isAvailable: true } },
+                { new: true }
               );
-              if (availableRightNow.length > 0) {
-                let driverId = availableRightNow[0]._id;
-                await queries.assignRideToDriver(element._id, driverId);
-
-                let assignedRide = await queries.getRideInFormatedMannenr(
-                  element._id
+              global.io.emit("Rejected", { rideId: element._id });
+            }
+            global.io.emit("remainingTime", {
+              seconds: time - element.timeDiff,
+              rideId: element._id,
+            });
+            // runtime rejection & reAssignment
+            if (
+              element.status == "assignedToAny" &&
+              (element.blockList.length == 0 ||
+                element.timeDiff > time ||
+                element.AcceptanceStatus == 0)
+            ) {
+              // finding Available Drivers
+              let availableDrivers = await queries.fetchAvailableDrivers(
+                element.serviceType,
+                element.sourceCity,
+                element.blockList,
+                "forAuto"
+              );
+              if (availableDrivers.length > 0) {
+                let driver = await driverModel.findOneAndUpdate(
+                  {
+                    _id: { $nin: element.blockList },
+                    serviceType: element.serviceType,
+                    city: element.sourceCity,
+                    approved: true,
+                    isAvailable: true,
+                    inRide: false,
+                  },
+                  { $set: { isAvailable: false } },
+                  { new: true }
                 );
-                global.io.emit("assignRideFromServer", assignedRide);
-                // return;
+                if (driver) {
+                  await queries.assignRideToDriver(element._id, driver._id);
+
+                  let assignedRide = await queries.getRideInFormatedMannenr(
+                    element._id
+                  );
+                  global.io.emit("assignRideFromServer", assignedRide);
+                } else {
+                  global.io.emit("requestOnHold", element._id);
+                }
               } else {
-                global.io.emit("requestOnHold", element._id);
+                await queries.updateRideStatus(element._id, "available");
+                global.io.emit("cronEnd", {
+                  message: "All Drivers are Busy",
+                  rideId: element._id,
+                });
+                return;
               }
-            } else {
+            } else if (
+              element.status == "assignedToOne" &&
+              (element.blockList.length > 1 ||
+                element.timeDiff > time ||
+                element.AcceptanceStatus == 0)
+            ) {
               await queries.updateRideStatus(element._id, "available");
               global.io.emit("cronEnd", {
                 message: "All Drivers are Busy",
                 rideId: element._id,
               });
-              return;
             }
-          } else if (
-            element.status == "assignedToOne" &&
-            (element.blockList.length > 1 ||
-              Math.floor((Date.now() - element.timeOfAssign) / 1000) > time ||
-              element.AcceptanceStatus == 0)
-          ) {
-            await queries.updateRideStatus(element._id, "available");
-            global.io.emit("cronEnd", {
-              message: "All Drivers are Busy",
-              rideId: element._id,
-            });
           }
-        });
+        };
+        cronAsync(rides);
       }
     } catch (err) {
       console.error("network Error");
@@ -106,7 +113,13 @@ const getRidesToAssign = async () => {
           sourceCity: 1,
           blockList: 1,
           status: 1,
-          timeOfAssign: 1,
+          timeDiff: {
+            $dateDiff: {
+              startDate: "$timeOfAssign",
+              endDate: "$$NOW",
+              unit: "second",
+            },
+          },
           AcceptanceStatus: 1,
           driverId: 1,
         },
@@ -120,11 +133,8 @@ const getRidesToAssign = async () => {
 
 const getSettingsTime = async () => {
   try {
-    let settings = await settingsModel.aggregate([
-      { $match: { _id: new ObjectId("665e91b8e54b312a06e372b6") } },
-      { $project: { timeOut: 1 } },
-    ]);
-    return settings[0].timeOut;
+    let settings = await settingsModel.findOne();
+    return settings.timeOut;
   } catch (err) {
     console.error("Error in async task:", err);
   }

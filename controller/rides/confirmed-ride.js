@@ -1,6 +1,7 @@
 const rideModel = require("../../models/ride");
 const { ObjectId } = require("mongodb");
 const settingsModel = require("../../models/settings");
+const driverModel = require("../../models/driver");
 const query = require("./../../Database Operations/rides/confirmRides");
 
 exports.getAllDrivers = async (req, res) => {
@@ -60,6 +61,11 @@ exports.patchCancleRide = async (req, res) => {
 exports.patchAssingDriverManually = async (req, res) => {
   try {
     await rideModel.findOneAndUpdate({_id:req.body.rideId},{status:"assignedToOne"});
+    await driverModel.findOneAndUpdate(
+      { _id: req.body.driverId },
+      { $set: { isAvailable: false } }
+      // { new: true }
+    );    
     await query.assignRideToDriver(
       req.body.rideId,
       req.body.driverId

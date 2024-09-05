@@ -11,6 +11,7 @@ const { job } = require('./cron');
 const PORT = process.env.PORT || 3001;
 
 const corsOptions = {
+  // origin: "http://host.docker.internal:4200",
   origin: "http://localhost:4200",
   credentials: true,
   optionSuccessStatus: 204,

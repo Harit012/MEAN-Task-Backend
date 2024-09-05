@@ -279,19 +279,22 @@ exports.fetchAvailableDrivers = async (serviceType, sourceCity, blockList,flag )
   try {
     let matchObj={};
     if(flag == "forManual"){
-       matchObj = {
-         city: new ObjectId(sourceCity),
-         serviceType: serviceType, 
-         approved: true,
-         isAvailable: true,
-         inRide: false,
-       }
+      matchObj = {
+        city: new ObjectId(sourceCity),
+        _id: {$nin: blockList},
+        serviceType: serviceType, 
+        approved: true,
+        isAvailable: true,
+        inRide: false,
+      }
     }else if(flag == "forAuto"){
       matchObj = {
+        _id: {$nin: blockList},
         city: new ObjectId(sourceCity),
         serviceType: serviceType, 
         approved: true,
         inRide: false,
+
       }
     }
     let drivers = await driverModel.aggregate([
@@ -313,11 +316,6 @@ exports.fetchAvailableDrivers = async (serviceType, sourceCity, blockList,flag )
         },
       },
     ]);
-
-    // Filter out blocked drivers
-    drivers = drivers.filter(
-      (driver) => !blockList.includes(driver._id.toString())
-    );
     return drivers;
   } catch (error) {
     console.log(error)
@@ -382,16 +380,16 @@ exports.assignRideToDriver = async (rideId, driverId) => {
       {
         driverId: driverId,
         timeOfAssign: new Date(),
-        $addToSet: { blockList: driverId },
+        $addToSet: { blockList: new ObjectId(driverId) },
         AcceptanceStatus: 2,
       },
       { new: true }
     );
-    await driverModel.findOneAndUpdate(
-      { _id: driverId },
-      { $set: { isAvailable: false } }
-      // { new: true }
-    );
+    // await driverModel.findOneAndUpdate(
+    //   { _id: driverId },
+    //   { $set: { isAvailable: false } }
+    //   // { new: true }
+    // );
   } catch (err) {
     console.log(err);
     throw throwError(500, "Mongoode Error While updating ride status");

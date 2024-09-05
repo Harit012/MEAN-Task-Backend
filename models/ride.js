@@ -91,7 +91,7 @@ const rideSchema = new mongoose.Schema({
         required:true
     },
     blockList:{
-        type:[String],
+        type:[mongoose.Schema.Types.ObjectId],
         ref:"driver",
         required:false,
         default:[]
