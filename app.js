@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3001;
 
 const corsOptions = {
   // origin: "http://host.docker.internal:4200",
-  origin: "http://localhost:4200",
+  origin: "http://44.201.133.98:4200",
   credentials: true,
   optionSuccessStatus: 204,
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
@@ -32,7 +32,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:4200",
+    origin: "http://44.201.133.98:4200",
   },
 });
 

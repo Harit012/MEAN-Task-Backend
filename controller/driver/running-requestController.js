@@ -227,7 +227,7 @@ async function paymentConformation(currency, customerId, amount) {
     customer: customerId,
     payment_method: cardId,
     confirm: true,
-    return_url: "http://localhost:4200/admin/ride/ride-history",
+    return_url: "http://44.201.133.98:4200/admin/ride/ride-history",
     payment_method_types: ["card"],
   });
   if (paymentIntent["next_action"] != null) {

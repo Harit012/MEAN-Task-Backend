@@ -11,7 +11,7 @@ exports.connection = async function () {
     }
   } else {
     try {
-      await mongoose.connect("mongodb://localhost:27017/angularbackendTest");
+      await mongoose.connect("mongodb://44.201.133.98:27017/angularbackendTest");
       // // console.log("Compass connected");
     } catch (err) {
       console.log("Connection failed with Database");
